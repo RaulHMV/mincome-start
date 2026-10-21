@@ -7,6 +7,7 @@
 <br/>
 
 ![Conventional Commits](https://img.shields.io/badge/Conventional_Commits-1.0.0-FE5196?style=for-the-badge&logo=conventionalcommits&logoColor=white)
+![Gitmoji](https://img.shields.io/badge/Gitmoji-✨🐛📝-FFDD67?style=for-the-badge)
 ![SemVer](https://img.shields.io/badge/SemVer-2.0.0-3F4551?style=for-the-badge)
 ![Git Flow](https://img.shields.io/badge/Git_Flow-simplificado-F05032?style=for-the-badge&logo=git&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
@@ -16,7 +17,7 @@
 <br/>
 
 > [!IMPORTANT]
-> Esta guía aplica a todo el equipo. Si surge un caso que no está cubierto, se acuerda en equipo y se agrega aquí con un commit `docs(contributing): ...`.
+> Esta guía aplica a todo el equipo. Si surge un caso que no está cubierto, se acuerda en equipo y se agrega aquí con un commit `docs(contributing): 📝 ...`.
 
 <br/>
 
@@ -274,18 +275,19 @@ gitGraph
 
 ## 📝 Commits
 
-Seguimos **[Conventional Commits 1.0.0](https://www.conventionalcommits.org/es/v1.0.0/)**.
+Seguimos **[Conventional Commits 1.0.0](https://www.conventionalcommits.org/es/v1.0.0/)** con un **[gitmoji](https://gitmoji.dev/)** antes de la descripción.
 
 ### Formato
 
 ```text
-<tipo>(<alcance>): <descripción>
+<tipo>(<alcance>): <gitmoji> <descripción>
 
 [cuerpo opcional: qué cambia y por qué]
 
 Refs: TSK-XX
 ```
 
+- **Gitmoji** justo después de los dos puntos, como emoji (✨) y no como código (`:sparkles:`), para que se lea igual en la terminal y en GitHub. Usa el de su tipo en la tabla de abajo.
 - **Descripción** en español, en imperativo, con minúscula inicial y sin punto final.
 - **Primera línea** de máximo 72 caracteres.
 - **Un cambio lógico por commit.** Si el mensaje necesita un "y", probablemente son dos commits.
@@ -294,22 +296,34 @@ Refs: TSK-XX
 
 ### Tipos
 
-| Tipo | Cuándo | Efecto en la versión |
-|---|---|:-:|
-| `feat` | Nueva funcionalidad | MINOR |
-| `fix` | Corrección de un bug | PATCH |
-| `perf` | Mejora de rendimiento | PATCH |
-| `refactor` | Cambio interno sin alterar el comportamiento | — |
-| `test` | Agregar o corregir pruebas | — |
-| `docs` | Documentación | — |
-| `style` | Formato del código (espacios, comas) sin cambiar la lógica | — |
-| `build` | Sistema de build o dependencias | — |
-| `ci` | Configuración de CI | — |
-| `chore` | Mantenimiento que no entra en otro tipo | — |
-| `revert` | Revierte un commit anterior | Según lo revertido |
+| Tipo | Gitmoji | Cuándo | Efecto en la versión |
+|---|:-:|---|:-:|
+| `feat` | ✨ | Nueva funcionalidad | MINOR |
+| `fix` | 🐛 | Corrección de un bug | PATCH |
+| `perf` | ⚡️ | Mejora de rendimiento | PATCH |
+| `refactor` | ♻️ | Cambio interno sin alterar el comportamiento | — |
+| `test` | ✅ | Agregar o corregir pruebas | — |
+| `docs` | 📝 | Documentación | — |
+| `style` | 🎨 | Formato del código (espacios, comas) sin cambiar la lógica | — |
+| `build` | 📦️ | Sistema de build o dependencias | — |
+| `ci` | 👷 | Configuración de CI | — |
+| `chore` | 🔧 | Mantenimiento que no entra en otro tipo | — |
+| `revert` | ⏪️ | Revierte un commit anterior | Según lo revertido |
 
 > [!NOTE]
-> `style` no es para CSS: un cambio de estilos visuales es `feat` o `fix`.
+> `style` no es para CSS: un cambio de estilos visuales es `feat` o `fix` con 💄.
+
+Si uno de estos gitmojis describe mejor el cambio, úsalo en lugar del de su tipo:
+
+| Gitmoji | Cuándo | Ejemplo |
+|:-:|---|---|
+| 💄 | Estilos visuales o UI | `feat(ui): 💄 agrega modo oscuro al dashboard` |
+| 🗃️ | Migraciones o cambios en la base de datos | `feat(db): 🗃️ agrega cutoff_day a la tabla cards` |
+| 🚑️ | Hotfix de algo ya entregado | `fix(auth): 🚑️ corrige el ciclo de redirección del login` |
+| 🔒️ | Corrección de seguridad | `fix(cards): 🔒️ quita el alias de tarjeta de los logs` |
+| ➕ ➖ ⬆️ | Agregar, quitar o actualizar dependencias | `build(deps): ⬆️ actualiza vite a la versión 6` |
+| 💥 | Cambio incompatible, junto con el `!` | `feat(chatbot)!: 💥 cambia la respuesta de processQuery` |
+| 🙈 | Cambios en `.gitignore` | `chore: 🙈 ignora los reportes de cobertura` |
 
 ### Alcances
 
@@ -322,7 +336,7 @@ Para documentación, el alcance es el archivo: `docs(readme)`, `docs(contributin
 ### Ejemplos
 
 ```text
-feat(budgets): agrega alerta al superar el 80 % del límite mensual
+feat(budgets): ✨ agrega alerta al superar el 80 % del límite mensual
 
 Compara el acumulado de la categoría contra su límite al registrar
 un gasto y devuelve la alerta en la respuesta.
@@ -331,13 +345,13 @@ Refs: TSK-07
 ```
 
 ```text
-fix(cards): corrige días restantes cuando el corte cae en fin de mes
+fix(cards): 🐛 corrige días restantes cuando el corte cae en fin de mes
 
 Refs: TSK-06
 ```
 
 ```text
-feat(chatbot)!: agrega el aviso de IA a la respuesta de processQuery
+feat(chatbot)!: 💥 agrega el aviso de IA a la respuesta de processQuery
 
 BREAKING CHANGE: la respuesta ahora incluye el campo disclaimer y los
 clientes web y móvil deben mostrarlo.
@@ -349,8 +363,10 @@ Refs: TSK-09
 
 | ❌ | ✅ |
 |---|---|
-| `cambios` | `fix(search): corrige el filtro por rango de fechas` |
-| `Fix: Arreglé el login.` | `fix(auth): corrige la redirección después del login` |
+| `cambios` | `fix(search): 🐛 corrige el filtro por rango de fechas` |
+| `Fix: Arreglé el login.` | `fix(auth): 🐛 corrige la redirección después del login` |
+| `✨ feat(auth): agrega el login` | `feat(auth): ✨ agrega el login` (el gitmoji va después de los dos puntos) |
+| `feat(auth): :sparkles: agrega el login` | `feat(auth): ✨ agrega el login` (emoji, no código) |
 | `wip` | Commits pequeños, cada uno con un mensaje real |
 | `feat: dashboard y tarjetas` | Dos commits: uno `feat(dashboard)` y otro `feat(cards)` |
 
@@ -370,7 +386,7 @@ Todo cambio entra a `develop` o a `main` por pull request.
 | `release/*` o rama `hotfix` → `develop` | **Merge commit** | Regresa a `develop` lo corregido |
 
 > [!IMPORTANT]
-> Con *squash*, el **título del PR se convierte en el commit** que queda en `develop`. Por eso el título del PR siempre va en formato Conventional Commits.
+> Con *squash*, el **título del PR se convierte en el commit** que queda en `develop`. Por eso el título del PR siempre va en formato Conventional Commits, con su gitmoji.
 
 ### Plantilla de descripción
 
