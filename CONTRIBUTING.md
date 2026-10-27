@@ -63,12 +63,12 @@ Una tarea solo se mueve a **Hecho** en el tablero cuando cumple **todo** lo de s
 - [ ] Sin secretos ni llaves en el código.
 
 **🔀 Proceso**
-- [ ] La rama sigue el [formato de nombre](#formato-del-nombre) con el ID de su user story.
-- [ ] El PR tiene título en formato [Conventional Commits](#-commits), una descripción completa de los cambios y referencia su user story y su TSK.
+- [ ] La rama sigue el [formato de nombre](#formato-del-nombre) con la clave de su ticket de Jira.
+- [ ] El PR tiene título en formato [Conventional Commits](#-commits), una descripción completa de los cambios y referencia su ticket de Jira.
 - [ ] Tiene al menos una aprobación de otro integrante y todos los comentarios resueltos.
 - [ ] Está fusionado en `develop` y la rama se eliminó.
 - [ ] La documentación se actualizó si cambió el uso, la API o la configuración.
-- [ ] La tarjeta está en **Hecho** en el tablero Scrum.
+- [ ] El ticket está en **Done** en el tablero de Jira.
 
 ### Nivel 2 · Sprint
 
@@ -210,21 +210,22 @@ Usamos **Git Flow simplificado**: dos ramas permanentes y ramas temporales por t
 ### Formato del nombre
 
 ```text
-<nombre>/<tipo>/<us-id>-<descripcion-corta>
+<nombre>/<tipo>/<clave-jira>-<descripcion-corta>
 ```
 
 - **`<nombre>`**: tu nombre en minúsculas y sin acentos, por ejemplo `victor`, `valeria` o `carlos`.
 - **`<tipo>`**: uno de la tabla de arriba, los mismos que en los [commits](#-commits).
-- **`<us-id>`**: el ID de la user story. Cada historia corresponde a su RF del README, así que la historia de RF7 es `us-07`. El trabajo que no pertenece a ninguna historia (setup, documentación, CI) usa `us-00`.
+- **`<clave-jira>`**: la clave del ticket en Jira, en mayúsculas tal como aparece en el tablero, por ejemplo `SCRUM-5`. Con la clave en el nombre, Jira liga solo la rama, sus commits y su PR en la pestaña *Development* del ticket.
 - **`<descripcion-corta>`**: en inglés, de 2 a 5 palabras.
-- Todo en minúsculas y `kebab-case`, sin acentos ni ñ.
-- Las ramas `release/<versión>` son compartidas, así que no llevan nombre ni user story.
+- Todo en minúsculas y `kebab-case`, sin acentos ni ñ, excepto la clave de Jira.
+- Todo trabajo tiene su ticket. Si no existe, créalo en Jira antes de abrir la rama.
+- Las ramas `release/<versión>` son compartidas, así que no llevan nombre ni ticket.
 
 ```text
-carlos/feat/us-09-budget-alerts
-juan/fix/us-06-days-until-due
-victor/docs/us-00-contributing-guide
-valeria/hotfix/us-01-login-redirect-loop
+juan/feat/SCRUM-5-create-database
+carlos/feat/SCRUM-14-budget-alerts
+valeria/fix/SCRUM-21-days-until-due
+victor/hotfix/SCRUM-30-login-redirect-loop
 release/1.0.0
 ```
 
@@ -244,16 +245,16 @@ gitGraph
     branch develop
     checkout develop
     commit id: "chore: setup"
-    branch carlos/feat/us-01-auth
-    checkout carlos/feat/us-01-auth
+    branch carlos/feat/SCRUM-11-auth
+    checkout carlos/feat/SCRUM-11-auth
     commit id: "feat(auth)"
     checkout develop
-    merge carlos/feat/us-01-auth
-    branch carlos/feat/us-09-budget-alerts
-    checkout carlos/feat/us-09-budget-alerts
+    merge carlos/feat/SCRUM-11-auth
+    branch carlos/feat/SCRUM-14-budget-alerts
+    checkout carlos/feat/SCRUM-14-budget-alerts
     commit id: "feat(budgets)"
     checkout develop
-    merge carlos/feat/us-09-budget-alerts
+    merge carlos/feat/SCRUM-14-budget-alerts
     branch release/1.0.0
     checkout release/1.0.0
     commit id: "fix(qa)" tag: "v1.0.0-rc.1"
@@ -262,13 +263,13 @@ gitGraph
     checkout develop
     merge release/1.0.0
     checkout main
-    branch valeria/hotfix/us-01-login-redirect
-    checkout valeria/hotfix/us-01-login-redirect
+    branch victor/hotfix/SCRUM-30-login-redirect
+    checkout victor/hotfix/SCRUM-30-login-redirect
     commit id: "fix(auth)"
     checkout main
-    merge valeria/hotfix/us-01-login-redirect tag: "v1.0.1"
+    merge victor/hotfix/SCRUM-30-login-redirect tag: "v1.0.1"
     checkout develop
-    merge valeria/hotfix/us-01-login-redirect
+    merge victor/hotfix/SCRUM-30-login-redirect
 ```
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
@@ -284,14 +285,14 @@ Seguimos **[Conventional Commits 1.0.0](https://www.conventionalcommits.org/es/v
 
 [cuerpo opcional: qué cambia y por qué]
 
-Refs: TSK-XX
+Refs: SCRUM-XX
 ```
 
 - **Gitmoji** justo después de los dos puntos, como emoji (✨) y no como código (`:sparkles:`), para que se lea igual en la terminal y en GitHub. Usa el de su tipo en la tabla de abajo.
 - **Descripción** en español, en imperativo, con minúscula inicial y sin punto final.
 - **Primera línea** de máximo 72 caracteres.
 - **Un cambio lógico por commit.** Si el mensaje necesita un "y", probablemente son dos commits.
-- **Footer `Refs: TSK-XX`** para ligar el commit con su tarea.
+- **Footer `Refs: SCRUM-XX`** con la clave del ticket, para que Jira ligue el commit.
 - **Cambio incompatible:** agrega `!` después del tipo o alcance y un footer `BREAKING CHANGE:` que explique qué se rompe.
 
 ### Tipos
@@ -341,13 +342,13 @@ feat(budgets): ✨ agrega alerta al superar el 80 % del límite mensual
 Compara el acumulado de la categoría contra su límite al registrar
 un gasto y devuelve la alerta en la respuesta.
 
-Refs: TSK-07
+Refs: SCRUM-14
 ```
 
 ```text
 fix(cards): 🐛 corrige días restantes cuando el corte cae en fin de mes
 
-Refs: TSK-06
+Refs: SCRUM-21
 ```
 
 ```text
@@ -356,7 +357,7 @@ feat(chatbot)!: 💥 agrega el aviso de IA a la respuesta de processQuery
 BREAKING CHANGE: la respuesta ahora incluye el campo disclaimer y los
 clientes web y móvil deben mostrarlo.
 
-Refs: TSK-09
+Refs: SCRUM-25
 ```
 
 ### ❌ Así no / ✅ Así sí
@@ -393,8 +394,8 @@ Todo cambio entra a `develop` o a `main` por pull request.
 ```markdown
 ## ¿Qué cambia?
 
-## User story y tarea
-US-XX · TSK-XX
+## Ticket de Jira
+SCRUM-XX
 
 ## ¿Cómo probarlo?
 
