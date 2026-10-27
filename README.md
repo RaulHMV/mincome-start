@@ -696,7 +696,7 @@ Fuente **sans-serif** de libre distribución (**Inter** o la familia del sistema
 
 ### Modelo entidad-relación
 
-![Modelo entidad-relación de la base de datos](./drawSQL-image-export-2026-10-27.webp)
+![Modelo entidad-relación de la base de datos](./docs/drawSQL-image-export-2026-10-27.webp)
 
 *Plataforma multiplataforma de finanzas personales · Base de datos relacional PostgreSQL · Cuatrimestre septiembre – diciembre 2026*
 
