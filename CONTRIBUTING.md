@@ -2,7 +2,7 @@
 
 # 🤝 Guía de contribución · Mincome
 
-### Definition of Done, convenciones de nombres, ramas, commits y versionado
+### Definition of Done, convenciones de nombres, tickets, ramas, commits y versionado
 
 <br/>
 
@@ -27,9 +27,10 @@
 
 | 📏 Estándares | 🌿 Flujo en Git | 📦 Versiones y repositorio |
 |:--|:--|:--|
-| `01` [Definition of Done](#-definition-of-done) | `03` [Estrategia de ramas](#-estrategia-de-ramas) | `06` [Versionado](#-versionado) |
-| `02` [Convenciones de nombres](#-convenciones-de-nombres) | `04` [Commits](#-commits) | `07` [Qué nunca se sube](#-qué-nunca-se-sube) |
-| | `05` [Pull requests y code review](#-pull-requests-y-code-review) | `08` [Herramientas que lo hacen cumplir](#-herramientas-que-lo-hacen-cumplir) |
+| `01` [Definition of Done](#-definition-of-done) | `03` [Tickets en Jira](#-tickets-en-jira) | `07` [Versionado](#-versionado) |
+| `02` [Convenciones de nombres](#-convenciones-de-nombres) | `04` [Estrategia de ramas](#-estrategia-de-ramas) | `08` [Qué nunca se sube](#-qué-nunca-se-sube) |
+| | `05` [Commits](#-commits) | `09` [Herramientas que lo hacen cumplir](#-herramientas-que-lo-hacen-cumplir) |
+| | `06` [Pull requests y code review](#-pull-requests-y-code-review) | |
 
 </div>
 
@@ -37,12 +38,12 @@
 
 ## ✅ Definition of Done
 
-Una tarea solo se mueve a **Hecho** en el tablero cuando cumple **todo** lo de su nivel. Hay tres niveles: tarea, sprint y entrega final.
+Un ticket solo se mueve a **Done** en Jira cuando cumple **todo** lo de su nivel. Hay tres niveles: ticket, sprint y entrega final.
 
-### Nivel 1 · Tarea (TSK) y su pull request
+### Nivel 1 · Ticket y su pull request
 
 **🎯 Funcionalidad**
-- [ ] Cumple los criterios de aceptación del RF vinculado y el DoD específico de su TSK en el plan de tareas.
+- [ ] Cumple los criterios de aceptación de su ticket en Jira y, si tiene RF o TSK vinculado, los del README.
 - [ ] Si toca interfaz, funciona en web y en móvil (Capacitor).
 - [ ] Si toca interfaz, es responsiva sin desbordamientos horizontales (RNF6) y muestra confirmación al guardar, actualizar o eliminar (RNF7).
 
@@ -72,7 +73,7 @@ Una tarea solo se mueve a **Hecho** en el tablero cuando cumple **todo** lo de s
 
 ### Nivel 2 · Sprint
 
-- [ ] Todas las tareas comprometidas cumplen el nivel 1, o regresan al backlog con justificación.
+- [ ] Todos los tickets comprometidos cumplen el nivel 1, o regresan al backlog con justificación.
 - [ ] `develop` compila y todas las pruebas pasan.
 - [ ] QA ejecutó los casos de la matriz de pruebas que corresponden a lo entregado (TSK-15).
 - [ ] Se hizo la demo en la revisión del sprint.
@@ -183,6 +184,56 @@ Archivos en `kebab-case` con el sufijo de su tipo, igual que los genera el CLI d
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
 
+## 🎫 Tickets en Jira
+
+El tablero de Jira del proyecto `SCRUM` es donde vive el trabajo del equipo. Todo cambio en el código tiene su ticket, y su clave (`SCRUM-5`) va en la rama, en los commits y en el PR.
+
+### Tipos de ticket
+
+| Tipo | Para qué | Ejemplo |
+|---|---|---|
+| **Epic** | Agrupa los tickets de un módulo o de un RF | Presupuestos y alertas (RF9) |
+| **Story** | Funcionalidad o entregable con valor para el usuario o el equipo | Alerta al superar el 80 % del presupuesto |
+| **Task** | Trabajo técnico, de documentación o de configuración | Configurar el despliegue en AWS |
+| **Bug** | Algo que no cumple su criterio de aceptación | El saldo no se actualiza al borrar un gasto |
+| **Subtask** | Una parte de una Story o Task que conviene separar | Endpoint de alertas de presupuesto |
+
+### Cómo llenar un ticket
+
+| Campo | Qué poner |
+|---|---|
+| **Summary** | Qué se va a hacer, corto y en imperativo: `Crear la base de datos` |
+| **Description · Context** | La historia: *Como \<rol\> quiero \<acción\> para \<beneficio\>* |
+| **Description · Acceptance Criteria** | Una lista de condiciones verificables. El ticket no pasa a **Done** si falta una |
+| **Assignee** | La persona responsable. Solo una |
+| **Pairing Partner** | Quien trabaja en pareja con el responsable (*pair programming*), si aplica |
+| **Colaborators** | Quien apoya sin ser responsable, por ejemplo quien da información o revisa |
+| **Parent** | El epic al que pertenece |
+| **Sprint** | El sprint en el que se compromete |
+| **Priority** | Según el impacto en la entrega |
+| **Story point estimate** | Se estima en la planeación del sprint, con la misma escala del plan de tareas del README |
+| **Due date** | La fecha comprometida. Si se va a pasar, avísalo en el daily y en un comentario del ticket |
+| **Labels** | Opcional. Usa los mismos [alcances](#alcances) de los commits: `auth`, `budgets`, `chatbot`… |
+
+### Estados y su relación con Git
+
+| Estado | Cuándo se mueve ahí | En Git |
+|---|---|---|
+| **To Do** | Está comprometido en el sprint y nadie lo ha empezado | Todavía no hay rama |
+| **In Progress** | Empiezas a trabajar: asígnatelo y muévelo | Creas la rama con su clave y haces push al menos una vez al día |
+| **On Hold** | El equipo lo pausa, por ejemplo por un cambio de prioridad | La rama se queda como está |
+| **Blocked** | No puedes avanzar porque dependes de otra cosa. Escribe en un comentario qué lo bloquea y avísalo en el daily | La rama se queda como está |
+| **in review** | Terminaste el trabajo y abriste el PR | PR abierto, esperando aprobación y checks |
+| **Done** | El PR se fusionó y se cumple la [Definition of Done](#-definition-of-done) | Rama fusionada y eliminada |
+
+### Integración con GitHub
+
+- La pestaña *Development* del ticket muestra su rama, sus commits y su PR cuando el nombre o el mensaje incluye la clave del ticket. Por eso la clave va en la rama y en el footer `Refs:`.
+- Para que funcione, un administrador conecta GitHub con la app **GitHub for Jira** una sola vez, desde *Development › Connect development tools* en cualquier ticket.
+- Si creas la rama con el botón *Create branch* de Jira, cambia el nombre al [formato de la guía](#formato-del-nombre) antes de crearla.
+
+<div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
+
 ## 🌿 Estrategia de ramas
 
 Usamos **Git Flow simplificado**: dos ramas permanentes y ramas temporales por tarea.
@@ -231,7 +282,7 @@ release/1.0.0
 
 ### Reglas
 
-- Una rama por tarea, con vida máxima de un sprint.
+- Una rama por ticket, con vida máxima de un sprint.
 - **Push al remoto al menos una vez al día.** Es el respaldo diario del plan de contingencia.
 - Mantén tu rama al día con `develop`: usa `rebase` si solo tú trabajas en ella y `merge` si es compartida (*pair programming*).
 - Nadie hace push directo a `main` ni a `develop`.
@@ -418,8 +469,9 @@ SCRUM-XX
 
 ### Reglas
 
-- Un PR por tarea.
+- Un PR por ticket.
 - **El PR se abre solo cuando el trabajo está terminado** o cuando necesitas que corran los pipelines hacia `main`. Mientras tanto, solo haces push a tu rama.
+- Al abrir el PR, mueve el ticket a **in review**. Cuando se fusiona, muévelo a **Done**.
 - **La descripción explica qué cambia y por qué**, con la plantilla completa. Un PR que solo tiene título no se revisa.
 - El autor fusiona cuando tiene la aprobación y todos los checks están en verde, y luego elimina la rama.
 - `main` y `develop` tienen reglas de protección en GitHub: PR obligatorio, 1 aprobación mínima, checks obligatorios, sin *force push* y sin borrado.
@@ -514,6 +566,7 @@ git push origin v1.0.0
 | **commitlint** + `@commitlint/config-conventional` | Formato del mensaje de commit | Al escribir el commit |
 | **GitHub Actions** | Lint, tipado, pruebas y build | En cada PR a `develop` y `main` |
 | **Protección de ramas** | PR obligatorio, 1 aprobación y checks en verde | En `main` y `develop` |
+| **GitHub for Jira** | Liga cada rama, commit y PR con su ticket por la clave `SCRUM-XX` | En cada push y PR |
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
 
