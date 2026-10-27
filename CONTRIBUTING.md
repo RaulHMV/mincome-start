@@ -96,12 +96,13 @@ Un ticket solo se mueve a **Done** en Jira cuando cumple **todo** lo de su nivel
 
 | Qué | Idioma |
 |---|---|
-| Código: variables, funciones, clases, archivos, tablas, endpoints y nombres de ramas | 🇺🇸 Inglés |
+| Código: variables, funciones, clases, archivos, endpoints y nombres de ramas | 🇺🇸 Inglés |
+| Base de datos: tablas, columnas y tipos enumerados | 🇲🇽 Español |
 | Mensajes de commit, pull requests y documentación | 🇲🇽 Español |
 | Textos visibles para el usuario | 🇲🇽 Español |
 
 > [!NOTE]
-> El código va en inglés porque los frameworks y librerías ya lo están; así se evitan mezclas como `getUsuarios()`. Por eso `procesarConsulta()` del anteproyecto queda como `processQuery()`.
+> El código va en inglés porque los frameworks y librerías ya lo están; así se evitan mezclas como `getUsuarios()`. Por eso `procesarConsulta()` del anteproyecto queda como `processQuery()`. La base de datos va en español porque así se diseñó el modelo de datos (ver el diccionario en el README); las entidades del ORM mapean esos nombres.
 
 ### 🟦 TypeScript (frontend y backend)
 
@@ -148,17 +149,18 @@ Archivos en `kebab-case` con el sufijo de su tipo, igual que los genera el CLI d
 
 | Elemento | Convención | Ejemplo |
 |---|---|---|
-| Tablas | `snake_case`, plural | `transactions`, `budget_limits` |
-| Columnas | `snake_case` | `cutoff_day`, `payment_due_day` |
+| Tablas | `snake_case`, plural, en español | `transacciones`, `presupuestos` |
+| Columnas | `snake_case`, en español | `dia_corte`, `dia_limite_pago` |
 | Llave primaria | `id` | `id` |
-| Llaves foráneas | `<tabla_en_singular>_id` | `user_id`, `card_id` |
-| Fechas de auditoría | `created_at`, `updated_at` | — |
-| Booleanos | prefijo `is_` / `has_` | `is_recurring` |
-| Índices | `idx_<tabla>_<columnas>` | `idx_transactions_user_id_date` |
-| Restricciones únicas | `uq_<tabla>_<columnas>` | `uq_cards_user_id_alias` |
+| Llaves foráneas | `<tabla_en_singular>_id` | `usuario_id`, `tarjeta_id` |
+| Fechas de auditoría | `creado_en`, `actualizado_en` | — |
+| Booleanos | adjetivo, o prefijo `es_` / `tiene_` / `incluye_` | `activo`, `es_sistema`, `incluye_asistente` |
+| Tipos enumerados | `snake_case` en singular; valores en minúsculas y sin acentos | `tipo_tarjeta`: `credito`, `debito` |
+| Índices | `idx_<tabla>_<columnas>` | `idx_transacciones_usuario_id_fecha` |
+| Restricciones únicas | `uq_<tabla>_<columnas>` | `uq_tarjetas_usuario_id_alias` |
 
 > [!TIP]
-> Se usa `snake_case` porque PostgreSQL convierte a minúsculas los identificadores sin comillas. El ORM mapea las columnas a `camelCase` en TypeScript.
+> Se usa `snake_case` porque PostgreSQL convierte a minúsculas los identificadores sin comillas. En TypeScript, las entidades llevan nombres en inglés y mapean cada tabla y columna; por ejemplo, en TypeORM: `@Entity('transacciones')` y `@Column({ name: 'monto' }) amount`.
 
 ### 🔌 API REST
 
@@ -537,7 +539,7 @@ git push origin v1.0.0
 ### Migraciones de base de datos
 
 - Todo cambio al esquema va en una **migración versionada dentro del repositorio**; nunca se hacen cambios manuales en la base de datos.
-- La migración se genera con el CLI del ORM y su nombre describe el cambio en inglés, por ejemplo `AddCutoffDayToCards`.
+- La migración se genera con el CLI del ORM y su nombre describe el cambio en inglés, por ejemplo `AddDiaCorteToTarjetas`.
 - Una migración ya fusionada en `develop` **no se edita**: si hay que corregirla, se crea otra.
 - La migración va en el mismo PR que la funcionalidad que la necesita.
 
