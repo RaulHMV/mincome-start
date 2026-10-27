@@ -41,14 +41,14 @@ Gateway principal del proyecto **Mincome**. Este repositorio centraliza los enla
 
 | 📖 Definición del proyecto | 🗓️ Planeación y gestión | 🧱 Diseño técnico y UX |
 |:--|:--|:--|
-| `01` [Problemática](#-problemática) | `05` [Requisitos funcionales y no funcionales](#-requisitos-funcionales-y-no-funcionales) | `10` [Arquitectura y tecnologías](#-arquitectura-y-tecnologías) |
-| `02` [Justificación](#-justificación) | `06` [Análisis de riesgos](#-análisis-de-riesgos) | `11` [Patrones de diseño](#-patrones-de-diseño) |
-| `03` [Objetivos](#-objetivos) | `07` [Metodología y equipo](#-metodología-y-equipo) | `12` [Wireframes y flujo de navegación](#-wireframes-y-flujo-de-navegación) |
-| `04` [Alcance, MVP y limitaciones](#-alcance-mvp-y-limitaciones) | `08` [Separación en tareas](#-separación-en-tareas) | `13` [Búsquedas en el sitio](#-búsquedas-en-el-sitio) |
-| | `09` [Cronograma](#-cronograma) | `14` [Validación de la información](#-validación-de-la-información) |
+| `01` [Problemática](#-problemática) | `05` [Requisitos funcionales y no funcionales](#-requisitos-funcionales-y-no-funcionales) | `11` [Arquitectura y tecnologías](#-arquitectura-y-tecnologías) |
+| `02` [Justificación](#-justificación) | `06` [Análisis de riesgos](#-análisis-de-riesgos) | `12` [Patrones de diseño](#-patrones-de-diseño) |
+| `03` [Objetivos](#-objetivos) | `07` [Metodología y equipo](#-metodología-y-equipo) | `13` [Wireframes y flujo de navegación](#-wireframes-y-flujo-de-navegación) |
+| `04` [Alcance, MVP y limitaciones](#-alcance-mvp-y-limitaciones) | `08` [Control de versiones con GitHub](#-control-de-versiones-con-github) | `14` [Búsquedas en el sitio](#-búsquedas-en-el-sitio) |
+| | `09` [Separación en tareas](#-separación-en-tareas) | `15` [Validación de la información](#-validación-de-la-información) |
+| | `10` [Cronograma](#-cronograma) | `16` [Definición de contenido](#-definición-de-contenido) |
 | | | `15` [Definición de contenido](#-definición-de-contenido) |
 | | | `16` [Modelo entidad-relación y diccionario de datos](#-modelo-entidad-relación-y-diccionario-de-datos) |
-
 </div>
 
 <br/>
@@ -325,6 +325,22 @@ Se eligió la **metodología ágil (framework Scrum)** por las características 
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
 
+## 🐙 Control de versiones con GitHub
+
+Usamos **GitHub** para alojar los repositorios del proyecto, revisar el código y desplegar.
+
+| Motivo | Justificación |
+|---|---|
+| 🎓 **GitHub Student Developer Pack** | Como estudiantes tenemos GitHub Pro y GitHub Copilot sin costo, así que la plataforma no le suma gastos al proyecto. |
+| 🤝 **Es lo que el equipo ya conoce** | Todos lo hemos usado antes, así que no perdemos tiempo del cuatrimestre aprendiendo otra plataforma y empezamos a trabajar desde el primer sprint. |
+| 🔀 **Todo el flujo en un solo lugar** | Repositorios, pull requests con revisión obligatoria y ramas protegidas para `main` y `develop`. |
+| 🚀 **CI/CD con GitHub Actions** | Corre lint, pruebas y despliegue a AWS en cada PR, conectándose por OIDC, sin llaves de AWS en el repositorio. |
+| 🎫 **Integración con Jira** | Con la app GitHub for Jira, cada rama, commit y PR aparece en su ticket del tablero. |
+
+Las reglas de ramas, commits y pull requests están en la [guía de contribución](CONTRIBUTING.md).
+
+<div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
+
 ## ✅ Separación en tareas
 
 | ID | Tarea | Requisitos | Responsable | Esfuerzo | Depende de |
@@ -533,6 +549,7 @@ flowchart LR
 | **IA · Orquestación** | LangChain | Interpreta el mensaje del usuario, elige qué herramienta MCP ejecutar y con qué parámetros, y redacta la respuesta solo con los datos que regresa el endpoint (RF7). |
 | **IA · Contexto** | Servidor MCP | Seguridad y desacoplamiento arquitectónico (RNF2): permite que el modelo de lenguaje interactúe de forma controlada con el contexto financiero del usuario, sin acceso directo o no autorizado a la base de datos central. |
 | **Infraestructura web** | Amazon S3 + CloudFront | Alta disponibilidad y distribución segura por CDN (RNF4). |
+| **Control de versiones y CI/CD** | GitHub + GitHub Actions | Tenemos GitHub Student Developer Pack y es la plataforma que el equipo ya conoce. El detalle está en [Control de versiones con GitHub](#-control-de-versiones-con-github). |
 
 ### 🚀 Despliegue
 
