@@ -501,10 +501,22 @@ flowchart LR
     MOB --> B
     AUTH -.-> COG
     B --> DB
-    B --> IA
-    LC <--> LLM
-    MCP -->|contexto financiero controlado| B
+    C -->|/chat| IA
+    LC <-->|elige la acción y redacta con el JSON| LLM
+    MCP -->|ejecuta la acción en la API| B
 ```
+
+### ☁️ Infraestructura en AWS
+
+<div align="center">
+<img src="docs/arquitectura-aws.svg" alt="Diagrama de la arquitectura de Mincome en AWS: clientes web y móvil, CloudFront y S3, Cognito, API Gateway, Lambdas, RDS Proxy, RDS PostgreSQL y OpenAI" width="100%"/>
+</div>
+
+- **Web:** CloudFront sirve el build de React desde un bucket de S3 privado, al que solo CloudFront puede leer (OAC). La app móvil lleva su build dentro del paquete de Capacitor, así que no pasa por CloudFront.
+- **Autenticación:** web y móvil inician sesión con Cognito y mandan el JWT en cada petición. API Gateway lo valida antes de invocar cualquier Lambda.
+- **Backend:** NestJS corre en una Lambda dentro de la VPC y se conecta a RDS PostgreSQL a través de RDS Proxy, que reutiliza las conexiones entre invocaciones para no agotar el pool.
+- **IA:** el chat es un endpoint (`POST /chat`) que llega a la Lambda de `mincome-ai-wrapper`. La IA solo conoce las herramientas del servidor MCP y hace dos llamadas a OpenAI. En la primera identifica la acción y sus parámetros, y la ejecuta por MCP contra la API con el JWT del usuario, nunca directo en la base de datos (RNF2). En la segunda redacta la respuesta usando solo el JSON que regresó el endpoint. Si el mensaje no corresponde a ninguna acción, responde un mensaje fijo y no hace la segunda llamada. La Lambda está fuera de la VPC para llamar a OpenAI sin NAT Gateway.
+- **Soporte:** las llaves viven en Secrets Manager, los logs y alarmas en CloudWatch, y todo se despliega con AWS SAM desde GitHub Actions usando OIDC, sin llaves de AWS en el repositorio.
 
 ### 🧰 Tecnologías elegidas
 
@@ -515,14 +527,17 @@ flowchart LR
 | **Aplicación móvil** | Capacitor | Aloja la solución web en un WebView nativo optimizado, reutilizando el 100 % de los componentes visuales responsivos, la lógica de negocio y las interfaces en TypeScript, y consumiendo la misma API en NestJS sin duplicar el desarrollo ni mantener dos códigos fuente. |
 | **Backend** | NestJS (Node.js) | La gestión y consistencia del dinero (RF2, RF3, RF4, RF9) requiere un sistema robusto y seguro. Su arquitectura modular separa limpiamente el módulo de autenticación (RF1), el módulo financiero y el módulo de seguridad, con compatibilidad nativa con TypeScript. |
 | **Autenticación** | Amazon Cognito | Registro e inicio de sesión de usuarios (RF1). |
-| **Base de datos** | PostgreSQL | Garantiza las propiedades ACID para balances contables e historiales transaccionales, evita inconsistencias durante consultas y filtrados masivos (RF8, RNF5) y permite un modelado estricto de tablas para no almacenar CVV ni NIP (RNF3). |
-| **IA · Orquestación** | LangChain | Orquesta los prompts y la memoria del chatbot de forma estructurada (RF7). |
+| **Cómputo del backend** | AWS Lambda + Amazon API Gateway | Cobro por uso y escalado automático, sin servidores que administrar. API Gateway valida el JWT de Cognito antes de invocar las Lambdas. |
+| **Base de datos** | PostgreSQL en Amazon RDS + RDS Proxy | Garantiza las propiedades ACID para balances contables e historiales transaccionales, evita inconsistencias durante consultas y filtrados masivos (RF8, RNF5) y permite un modelado estricto de tablas para no almacenar CVV ni NIP (RNF3). |
+| **IA · Orquestación** | LangChain | Interpreta el mensaje del usuario, elige qué herramienta MCP ejecutar y con qué parámetros, y redacta la respuesta solo con los datos que regresa el endpoint (RF7). |
 | **IA · Contexto** | Servidor MCP | Seguridad y desacoplamiento arquitectónico (RNF2): permite que el modelo de lenguaje interactúe de forma controlada con el contexto financiero del usuario, sin acceso directo o no autorizado a la base de datos central. |
 | **Infraestructura web** | Amazon S3 + CloudFront | Alta disponibilidad y distribución segura por CDN (RNF4). |
 
 ### 🚀 Despliegue
 
 - **Web:** Amazon S3 y Amazon CloudFront (RNF4).
+- **Backend e IA:** funciones de AWS Lambda detrás de Amazon API Gateway, desplegadas con AWS SAM desde GitHub Actions.
+- **Base de datos:** Amazon RDS for PostgreSQL en subredes privadas, con RDS Proxy.
 - **Móvil:** empaquetado de los artefactos generados por Capacitor para su instalación directa en dispositivos móviles.
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
