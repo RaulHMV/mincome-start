@@ -47,7 +47,8 @@ Gateway principal del proyecto **Mincome**. Este repositorio centraliza los enla
 | `04` [Alcance, MVP y limitaciones](#-alcance-mvp-y-limitaciones) | `08` [Control de versiones con GitHub](#-control-de-versiones-con-github) | `14` [Búsquedas en el sitio](#-búsquedas-en-el-sitio) |
 | | `09` [Separación en tareas](#-separación-en-tareas) | `15` [Validación de la información](#-validación-de-la-información) |
 | | `10` [Cronograma](#-cronograma) | `16` [Definición de contenido](#-definición-de-contenido) |
-
+| | | `15` [Definición de contenido](#-definición-de-contenido) |
+| | | `16` [Modelo entidad-relación y diccionario de datos](#-modelo-entidad-relación-y-diccionario-de-datos) |
 </div>
 
 <br/>
@@ -707,6 +708,263 @@ Fuente **sans-serif** de libre distribución (**Inter** o la familia del sistema
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
 
 ---
+
+## 🗃️ Modelo entidad-relación y diccionario de datos
+
+### Modelo entidad-relación
+
+![Modelo entidad-relación de la base de datos](./docs/drawSQL-image-export-2026-10-27.webp)
+
+*Plataforma multiplataforma de finanzas personales · Base de datos relacional PostgreSQL · Cuatrimestre septiembre – diciembre 2026*
+
+Estructura de la base de datos PostgreSQL: tipos enumerados y 14 tablas con sus campos, tipos, restricciones y llaves. Amazon Cognito gestiona la autenticación; por ello el esquema no guarda contraseñas ni sesiones, ni número de tarjeta, CVV o NIP.
+
+Abreviaturas: **PK** llave primaria · **FK** llave foránea · **NN** no nulo · **UQ** único · **CK** CHECK · **DF** valor por defecto.
+
+### Tipos enumerados
+
+| Tipo | Valores permitidos | Uso |
+| --- | --- | --- |
+| `tipo_flujo` | `ingreso`, `gasto` | Naturaleza del movimiento |
+| `subtipo_flujo` | `recurrente`, `variable`, `fijo` | Clasificación del flujo |
+| `metodo_pago` | `efectivo`, `transferencia`, `tarjeta` | Medio del movimiento |
+| `tipo_tarjeta` | `credito`, `debito` | Tipo de tarjeta |
+| `frecuencia` | `semanal`, `quincenal`, `mensual`, `anual` | Periodicidad |
+| `tipo_mov_apartado` | `abono`, `retiro` | Dirección del traspaso |
+| `tipo_simulacion` | `ingreso`, `gasto`, `ahorro` | Partida hipotética |
+| `rol_mensaje` | `usuario`, `asistente`, `sistema` | Emisor del mensaje |
+
+### Diccionario de datos
+
+#### `planes`
+
+Catálogo de niveles de servicio y límites del asistente inteligente (RNF2).
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | SMALLINT | PK, identidad | Identificador |
+| `nombre` | VARCHAR(30) | NN, UQ | `gratuito` o `premium` |
+| `limite_consultas_mes` | INT | NN, CK >= 0 | Consultas máximas por mes |
+| `limite_tokens_mes` | INT | NN, CK >= 0 | Tokens máximos por mes |
+| `precio_mensual` | NUMERIC(8,2) | NN, DF 0, CK >= 0 | Costo mensual |
+| `activo` | BOOLEAN | NN, DF true | Plan disponible |
+
+#### `usuarios`
+
+Perfil y datos de negocio de las cuentas registradas (RF1). Cognito gestiona credenciales y sesiones.
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `plan_id` | SMALLINT | NN, FK → `planes.id` | Plan vigente |
+| `nombre` | VARCHAR(100) | NN | Nombre para mostrar |
+| `correo` | VARCHAR(254) | NN, UQ sobre `lower(correo)`, CK formato | Correo único |
+| `cognito_sub` | VARCHAR(64) | NN, UQ | Identificador en Cognito |
+| `saldo_inicial` | NUMERIC(14,2) | NN, DF 0 | Saldo inicial |
+| `moneda` | CHAR(3) | NN, DF 'MXN' | Código ISO 4217 |
+| `activo` | BOOLEAN | NN, DF true | Cuenta habilitada |
+| `ultimo_acceso` | TIMESTAMPTZ | NULL | Último acceso exitoso |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de alta |
+| `actualizado_en` | TIMESTAMPTZ | NN, DF now() | Última modificación |
+
+#### `categorias`
+
+Catálogo contable del sistema y de cada usuario.
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | INT | PK, identidad | Identificador |
+| `usuario_id` | UUID | NULL, FK → `usuarios.id` | Dueño; nulo para categorías del sistema |
+| `nombre` | VARCHAR(50) | NN | Nombre |
+| `icono` | VARCHAR(40) | NULL | Ícono SVG |
+| `tipo_aplicable` | VARCHAR(10) | NN, CK IN ('ingreso','gasto','ambos') | Flujos permitidos |
+| `es_sistema` | BOOLEAN | NN, DF false | Protegida contra edición o borrado |
+
+Unicidad: índice sobre `(COALESCE(usuario_id, '00000000-0000-0000-0000-000000000000'::uuid), lower(nombre))`.
+
+#### `tarjetas`
+
+Referencias de tarjetas (RF6). **No** guarda número, CVV, NIP ni titular (RNF3).
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Dueño |
+| `alias` | VARCHAR(50) | NN, UQ con usuario_id | Nombre elegido |
+| `tipo_tarjeta` | tipo_tarjeta | NN | Crédito o débito |
+| `dia_corte` | SMALLINT | NN, CK BETWEEN 1 AND 31 | Día de corte |
+| `dia_limite_pago` | SMALLINT | NN, CK BETWEEN 1 AND 31 | Día límite de pago |
+| `color_hex` | CHAR(7) | NULL, CK `#RRGGBB` | Color neutral |
+| `activa` | BOOLEAN | NN, DF true | Visible en el módulo |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de registro |
+
+#### `transacciones_recurrentes`
+
+Plantillas de ingresos o gastos que se repiten (RF2, RF3, RF5).
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Dueño |
+| `categoria_id` | INT | NN, FK → `categorias.id` | Categoría |
+| `tipo_flujo` | tipo_flujo | NN | Ingreso o gasto |
+| `subtipo` | subtipo_flujo | NN | Recurrente/fijo según el flujo |
+| `monto` | NUMERIC(12,2) | NN, CK > 0 | Importe |
+| `concepto` | VARCHAR(120) | NN | Descripción |
+| `metodo_pago` | metodo_pago | NN | Medio habitual |
+| `tarjeta_id` | UUID | NULL, FK → `tarjetas.id` | Tarjeta si aplica |
+| `frecuencia` | frecuencia | NN | Periodicidad |
+| `dia_ejecucion` | SMALLINT | NULL, CK BETWEEN 1 AND 31 | Día de ejecución |
+| `fecha_inicio` | DATE | NN | Primera ocurrencia |
+| `fecha_fin` | DATE | NULL, CK >= fecha_inicio | Última ocurrencia |
+| `activa` | BOOLEAN | NN, DF true | Sigue generando movimientos |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de alta |
+
+#### `transacciones`
+
+Entidad central de ingresos y gastos reales (RF2, RF3, RF8).
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Dueño |
+| `categoria_id` | INT | NN, FK → `categorias.id` | Categoría |
+| `tipo_flujo` | tipo_flujo | NN | Ingreso o gasto |
+| `subtipo` | subtipo_flujo | NN, CK coherencia | Subtipo válido para el flujo |
+| `monto` | NUMERIC(12,2) | NN, CK > 0 | Importe positivo |
+| `fecha` | DATE | NN | Fecha del movimiento |
+| `concepto` | VARCHAR(120) | NN | Concepto buscable |
+| `alias_comercial` | VARCHAR(80) | NULL | Comercio u origen |
+| `notas` | TEXT | NULL | Notas buscables |
+| `metodo_pago` | metodo_pago | NN | Medio de pago |
+| `tarjeta_id` | UUID | NULL, FK → `tarjetas.id` | Obligatoria con tarjeta |
+| `recurrente_id` | UUID | NULL, FK → `transacciones_recurrentes.id` | Plantilla de origen |
+| `nivel_alerta` | SMALLINT | NN, DF 0, CK IN (0,80,100) | Alerta presupuestal |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de captura |
+| `actualizado_en` | TIMESTAMPTZ | NN, DF now() | Última edición |
+
+Restricciones: coherencia entre `tipo_flujo` y `subtipo`; si `metodo_pago = 'tarjeta'`, `tarjeta_id` es obligatorio.
+
+#### `presupuestos`
+
+Límite mensual de gasto por categoría (RF9).
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Dueño |
+| `categoria_id` | INT | NN, FK → `categorias.id` | Categoría vigilada |
+| `monto_limite` | NUMERIC(12,2) | NN, CK > 0 | Tope mensual |
+| `umbral_alerta` | SMALLINT | NN, DF 80, CK BETWEEN 1 AND 99 | Porcentaje preventivo |
+| `activo` | BOOLEAN | NN, DF true | Presupuesto vigente |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de alta |
+| `actualizado_en` | TIMESTAMPTZ | NN, DF now() | Última modificación |
+
+Unicidad: `UQ (usuario_id, categoria_id)`.
+
+#### `apartados`
+
+Bolsillos virtuales de ahorro (RF4); no alteran el patrimonio total.
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Dueño |
+| `nombre` | VARCHAR(60) | NN, UQ con usuario_id | Nombre o meta |
+| `saldo` | NUMERIC(14,2) | NN, DF 0, CK >= 0 | Dinero apartado |
+| `meta_monto` | NUMERIC(14,2) | NULL, CK > 0 | Objetivo |
+| `fecha_meta` | DATE | NULL | Fecha objetivo |
+| `color_hex` | CHAR(7) | NULL | Color |
+| `icono` | VARCHAR(40) | NULL | Ícono SVG |
+| `activo` | BOOLEAN | NN, DF true | Apartado vigente |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de creación |
+
+#### `movimientos_apartado`
+
+Bitácora de abonos y retiros de los apartados.
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `apartado_id` | UUID | NN, FK → `apartados.id` | Apartado afectado |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Dueño |
+| `tipo` | tipo_mov_apartado | NN | Abono o retiro |
+| `monto` | NUMERIC(12,2) | NN, CK > 0 | Importe |
+| `fecha` | DATE | NN, DF CURRENT_DATE | Fecha del traspaso |
+| `nota` | VARCHAR(200) | NULL | Comentario |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de captura |
+
+#### `escenarios_simulacion`
+
+Escenarios hipotéticos guardados del calendario (RF5), aislados del balance real.
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Dueño |
+| `nombre` | VARCHAR(80) | NN | Nombre |
+| `fecha_inicio` | DATE | NN | Inicio |
+| `fecha_fin` | DATE | NN, CK >= fecha_inicio | Fin |
+| `saldo_base` | NUMERIC(14,2) | NN | Saldo libre al crear |
+| `saldo_proyectado` | NUMERIC(14,2) | NULL | Resultado calculado |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de creación |
+
+#### `simulacion_movimientos`
+
+Partidas ficticias dentro de un escenario.
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | BIGINT | PK, identidad | Identificador |
+| `escenario_id` | UUID | NN, FK → `escenarios_simulacion.id` | Escenario |
+| `fecha` | DATE | NN | Día de la partida |
+| `tipo` | tipo_simulacion | NN | Ingreso, gasto o ahorro |
+| `monto` | NUMERIC(12,2) | NN, CK > 0 | Importe ficticio |
+| `descripcion` | VARCHAR(120) | NULL | Descripción |
+
+#### `conversaciones_chat`
+
+Hilos del asistente inteligente (RF7).
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Dueño |
+| `titulo` | VARCHAR(100) | NULL | Título generado |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Inicio |
+| `actualizado_en` | TIMESTAMPTZ | NN, DF now() | Último mensaje |
+
+#### `mensajes_chat`
+
+Mensajes intercambiados con el chatbot (LangChain + servidor MCP).
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | BIGINT | PK, identidad | Identificador |
+| `conversacion_id` | UUID | NN, FK → `conversaciones_chat.id` | Hilo |
+| `rol` | rol_mensaje | NN | Emisor |
+| `contenido` | TEXT | NN | Texto |
+| `estrategia_usada` | VARCHAR(40) | NULL | Estrategia seleccionada |
+| `tokens_entrada` | INT | NN, DF 0, CK >= 0 | Tokens del prompt |
+| `tokens_salida` | INT | NN, DF 0, CK >= 0 | Tokens de respuesta |
+| `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha del mensaje |
+
+#### `cuotas_ia`
+
+Consumo mensual del asistente por usuario (RNF2).
+
+| Campo | Tipo | Restricciones | Descripción |
+| --- | --- | --- | --- |
+| `id` | UUID | PK | Identificador |
+| `usuario_id` | UUID | NN, FK → `usuarios.id` | Usuario medido |
+| `periodo` | DATE | NN | Primer día del mes |
+| `consultas_usadas` | INT | NN, DF 0, CK >= 0 | Consultas realizadas |
+| `tokens_usados` | INT | NN, DF 0, CK >= 0 | Tokens consumidos |
+| `actualizado_en` | TIMESTAMPTZ | NN, DF now() | Última actualización |
+
+Unicidad: `UQ (usuario_id, periodo)`. El tope aplicable se obtiene de `planes` mediante `usuarios.plan_id`.
+
+<div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
 
 <div align="center">
 
