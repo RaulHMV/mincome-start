@@ -5,6 +5,7 @@ Gateway principal del proyecto **Mincome**. Este repositorio centraliza los enla
 - [Mincome Backend](https://github.com/RaulHMV/mincome-backend) — API y servicios del backend.
 - [Mincome Frontend](https://github.com/RaulHMV/mincome-frontend) — Aplicación web frontend.
 - [Mincome App](https://github.com/RaulHMV/mincome-app) — Aplicación móvil.
+- [Mincome AI Wrapper](https://github.com/RaulHMV/mincome-ai-wrapper) — Wrapper/microservicio de IA.
 
 
 <div align="center">
