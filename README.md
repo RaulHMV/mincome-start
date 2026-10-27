@@ -532,6 +532,7 @@ flowchart LR
 | **IA · Orquestación** | LangChain | Interpreta el mensaje del usuario, elige qué herramienta MCP ejecutar y con qué parámetros, y redacta la respuesta solo con los datos que regresa el endpoint (RF7). |
 | **IA · Contexto** | Servidor MCP | Seguridad y desacoplamiento arquitectónico (RNF2): permite que el modelo de lenguaje interactúe de forma controlada con el contexto financiero del usuario, sin acceso directo o no autorizado a la base de datos central. |
 | **Infraestructura web** | Amazon S3 + CloudFront | Alta disponibilidad y distribución segura por CDN (RNF4). |
+| **Control de versiones y CI/CD** | GitHub + GitHub Actions | Contamos con **GitHub Student Developer Pack**, que nos da GitHub Pro y GitHub Copilot sin costo mientras seamos estudiantes. Además, es la plataforma que todo el equipo ya conoce, así que no perdemos tiempo del cuatrimestre aprendiendo otra herramienta. Reúne en un solo lugar los repositorios, la revisión por pull request con ramas protegidas y el despliegue a AWS con GitHub Actions, y se integra con Jira para ligar cada rama y PR con su ticket. |
 
 ### 🚀 Despliegue
 
