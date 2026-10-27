@@ -41,14 +41,14 @@ Gateway principal del proyecto **Mincome**. Este repositorio centraliza los enla
 
 | 📖 Definición del proyecto | 🗓️ Planeación y gestión | 🧱 Diseño técnico y UX |
 |:--|:--|:--|
-| `01` [Problemática](#-problemática) | `05` [Requisitos funcionales y no funcionales](#-requisitos-funcionales-y-no-funcionales) | `11` [Arquitectura y tecnologías](#-arquitectura-y-tecnologías) |
-| `02` [Justificación](#-justificación) | `06` [Análisis de riesgos](#-análisis-de-riesgos) | `12` [Patrones de diseño](#-patrones-de-diseño) |
-| `03` [Objetivos](#-objetivos) | `07` [Metodología y equipo](#-metodología-y-equipo) | `13` [Wireframes y flujo de navegación](#-wireframes-y-flujo-de-navegación) |
-| `04` [Alcance, MVP y limitaciones](#-alcance-mvp-y-limitaciones) | `08` [Control de versiones con GitHub](#-control-de-versiones-con-github) | `14` [Búsquedas en el sitio](#-búsquedas-en-el-sitio) |
-| | `09` [Separación en tareas](#-separación-en-tareas) | `15` [Validación de la información](#-validación-de-la-información) |
-| | `10` [Cronograma](#-cronograma) | `16` [Definición de contenido](#-definición-de-contenido) |
-| | | `15` [Definición de contenido](#-definición-de-contenido) |
-| | | `16` [Modelo entidad-relación y diccionario de datos](#-modelo-entidad-relación-y-diccionario-de-datos) |
+| `01` [Problemática](#-problemática) | `05` [Requisitos funcionales y no funcionales](#-requisitos-funcionales-y-no-funcionales) | `12` [Arquitectura y tecnologías](#-arquitectura-y-tecnologías) |
+| `02` [Justificación](#-justificación) | `06` [Casos de uso](#-casos-de-uso) | `13` [Patrones de diseño](#-patrones-de-diseño) |
+| `03` [Objetivos](#-objetivos) | `07` [Análisis de riesgos](#-análisis-de-riesgos) | `14` [Wireframes y flujo de navegación](#-wireframes-y-flujo-de-navegación) |
+| `04` [Alcance, MVP y limitaciones](#-alcance-mvp-y-limitaciones) | `08` [Metodología y equipo](#-metodología-y-equipo) | `15` [Búsquedas en el sitio](#-búsquedas-en-el-sitio) |
+| | `09` [Control de versiones con GitHub](#-control-de-versiones-con-github) | `16` [Validación de la información](#-validación-de-la-información) |
+| | `10` [Separación en tareas](#-separación-en-tareas) | `17` [Definición de contenido](#-definición-de-contenido) |
+| | `11` [Cronograma](#-cronograma) | `18` [Modelo entidad-relación y diccionario de datos](#-modelo-entidad-relación-y-diccionario-de-datos) |
+
 </div>
 
 <br/>
@@ -131,6 +131,7 @@ Para cumplir con el plazo, el MVP prioriza exclusivamente las funciones principa
 > [!NOTE]
 > - **Sin conexión bancaria:** no registra automáticamente cobros ni movimientos; la carga de información financiera es enteramente manual.
 > - **Sin datos sensibles:** por seguridad, no permite almacenar información sensible de cuentas o tarjetas (como CVV o NIP).
+> - **Plan premium asignado por el equipo:** el MVP no incluye pagos, así que el equipo asigna manualmente el plan premium, que es el que da acceso al asistente.
 > - **Precisión dependiente del usuario:** la utilidad de simulaciones, calendarios y recomendaciones del chatbot depende de que la información registrada sea veraz y se mantenga actualizada.
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
@@ -216,22 +217,22 @@ Para cumplir con el plazo, el MVP prioriza exclusivamente las funciones principa
 <br/>
 
 #### RNF1 · Arquitectura y stack tecnológico
-- **Descripción:** El sistema se construirá utilizando TypeScript como lenguaje base, implementando React con Vite para el cliente web, soporte multiplataforma móvil (React Native / Capacitor) y NestJS en el backend.
+- **Descripción:** El sistema se construirá utilizando TypeScript como lenguaje base, implementando React con Vite para el cliente web, soporte multiplataforma móvil con Capacitor y NestJS en el backend.
 - **Criterios de aceptación:** El cliente web, la aplicación móvil y los servicios del backend deben desacoplarse mediante una API RESTful modular, permitiendo su despliegue y ejecución independiente.
 
 #### RNF2 · Orquestación de inteligencia artificial
 - **Descripción:** Las funciones del chatbot deben implementarse integrando LangChain y operando a través de un servidor MCP (Model Context Protocol).
-- **Criterios de aceptación:** El sistema implementará control de cuotas por usuario: la prueba gratuita tendrá consultas limitadas para evaluación, mientras que los perfiles premium contarán con un cupo mensual ampliado de tokens, manteniendo un tope máximo en ambos niveles para prevenir sobrecostos y saturación del servicio.
+- **Criterios de aceptación:** El asistente es exclusivo del plan premium. El sistema implementará control de cuotas por usuario: cada usuario premium contará con un cupo mensual de consultas y tokens, con un tope máximo para prevenir sobrecostos y saturación del servicio. El plan se guarda en la base de datos (`usuarios.plan_id`) y se refleja en el grupo `premium` de Amazon Cognito.
 
-| Nivel | Cuota |
+| Plan | Asistente |
 |---|---|
-| 🆓 Prueba gratuita | Consultas limitadas para evaluación |
-| ⭐ Premium | Cupo mensual ampliado de tokens |
-| 🛑 Ambos | Tope máximo para prevenir sobrecostos y saturación |
+| 🆓 Gratuito | Sin acceso al asistente |
+| ⭐ Premium | Cupo mensual de consultas y tokens |
+| 🛑 Tope | Límite máximo por usuario para prevenir sobrecostos y saturación |
 
 #### RNF3 · Seguridad de datos y credenciales
 - **Descripción:** El sistema tiene prohibido almacenar información bancaria confidencial (como códigos CVV o NIP) y garantizará el cifrado de credenciales de acceso.
-- **Criterios de aceptación:** Los endpoints y la base de datos descartarán campos de datos bancarios confidenciales, y las contraseñas de los usuarios deberán procesarse mediante funciones hash seguras antes de persistirlas.
+- **Criterios de aceptación:** Los endpoints y la base de datos descartarán campos de datos bancarios confidenciales. Las contraseñas las gestiona Amazon Cognito, que las guarda con hash seguro, así que nunca llegan a la base de datos de Mincome.
 
 #### RNF4 · Infraestructura y despliegue en la nube
 - **Descripción:** La arquitectura frontend debe generar artefactos estáticos optimizados para servicios de alojamiento en la nube orientados a distribución de contenido.
@@ -250,6 +251,299 @@ Para cumplir con el plazo, el MVP prioriza exclusivamente las funciones principa
 - **Criterios de aceptación:** El sistema debe emplear una paleta de colores y componentes visuales estandarizados en todas las vistas; además, cada interacción (guardar, actualizar o eliminar registros) debe mostrar confirmaciones claras en pantalla.
 
 </details>
+
+<div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
+
+## 🎭 Casos de uso
+
+Los diagramas muestran qué puede hacer cada actor en Mincome, agrupados por módulo y ligados a su requisito. Cada caso de uso tiene un ID (`CU-XX`) para referenciarlo en los tickets de Jira; los que se repiten entre diagramas conservan el mismo ID.
+
+### Actores
+
+| Actor | Tipo | Descripción |
+|---|---|---|
+| 🙋 **Visitante** | Principal | Persona sin sesión iniciada. Solo puede registrarse, iniciar sesión o recuperar su contraseña. |
+| 👤 **Usuario** | Principal | Persona con sesión iniciada en el plan gratuito. Usa todos los módulos excepto el asistente. |
+| ⭐ **Usuario premium** | Principal | Hereda todo lo del usuario y además usa el asistente, con su cuota mensual (RNF2). |
+| 🛠️ **Administrador (equipo)** | Principal | Integrante del equipo que asigna los planes y carga los catálogos. En el MVP no tiene pantalla: lo hace con scripts. |
+| 🔑 **Amazon Cognito** | Secundario | Registra las cuentas, valida las credenciales y emite el JWT (RF1). |
+| ✨ **OpenAI** | Secundario | Identifica la acción que pide el mensaje y redacta la respuesta del asistente (RF7). |
+| ⏰ **Tarea programada** | Secundario | Genera en su fecha los movimientos de las plantillas recurrentes (RF2, RF3). |
+
+**Cómo leerlos:** la línea continua indica que el actor participa en el caso de uso; `«include»` es un paso que siempre ocurre dentro del caso; `«extend»` es un paso que solo ocurre si se cumple una condición.
+
+### Vista general
+
+```mermaid
+flowchart LR
+    V["🙋 Visitante"]
+    U["👤 Usuario"]
+    P["⭐ Usuario premium"]
+    ADM["🛠️ Administrador (equipo)"]
+    COG["🔑 Amazon Cognito"]
+    AI["✨ OpenAI"]
+    CRON["⏰ Tarea programada"]
+
+    subgraph SYS["Mincome"]
+        M1(["Cuenta y acceso · RF1"])
+        M2(["Ingresos y gastos · RF2 · RF3"])
+        M3(["Historial y búsqueda · RF8"])
+        M4(["Presupuestos · RF9"])
+        M5(["Apartados · RF4"])
+        M6(["Tarjetas · RF6"])
+        M7(["Calendario y simulador · RF5"])
+        M8(["Asistente inteligente · RF7 · solo premium"])
+        M9(["Dashboard · RF10"])
+        M10(["Planes y catálogos · RNF2"])
+    end
+
+    P -->|es un| U
+    V --- M1
+    U --- M1 & M2 & M3 & M4 & M5 & M6 & M7 & M9
+    P --- M8
+    ADM --- M10
+    M1 & M10 --- COG
+    M8 --- AI
+    M2 --- CRON
+```
+
+### Cuenta y acceso (RF1)
+
+```mermaid
+flowchart LR
+    V["🙋 Visitante"]
+    U["👤 Usuario"]
+    COG["🔑 Amazon Cognito"]
+
+    subgraph SYS["Mincome · Cuenta y acceso (RF1)"]
+        CU01(["CU-01 Registrarse"])
+        CU02(["CU-02 Confirmar el correo"])
+        CU03(["CU-03 Crear el perfil en Mincome"])
+        CU04(["CU-04 Iniciar sesión"])
+        CU05(["CU-05 Validar las credenciales"])
+        CU06(["CU-06 Recuperar la contraseña"])
+        CU07(["CU-07 Cerrar sesión"])
+        CU08(["CU-08 Consultar y editar el perfil<br/>nombre, moneda y saldo inicial"])
+    end
+
+    V --- CU01 & CU04 & CU06
+    U --- CU07 & CU08
+    CU01 -.->|«include»| CU02
+    CU02 -.->|«include»| CU03
+    CU04 -.->|«include»| CU05
+    CU06 -.->|«extend»<br/>si olvidó la contraseña| CU04
+    CU01 & CU02 & CU05 & CU06 --- COG
+```
+
+### Ingresos y gastos (RF2, RF3)
+
+```mermaid
+flowchart LR
+    U["👤 Usuario"]
+    CRON["⏰ Tarea programada"]
+
+    subgraph SYS["Mincome · Ingresos y gastos (RF2 · RF3)"]
+        CU09(["CU-09 Registrar un ingreso"])
+        CU10(["CU-10 Registrar un gasto"])
+        CU11(["CU-11 Editar un movimiento"])
+        CU12(["CU-12 Eliminar un movimiento"])
+        CU17(["CU-17 Programar un movimiento recurrente"])
+        CU18(["CU-18 Editar o pausar un movimiento recurrente"])
+        CU19(["CU-19 Generar los movimientos recurrentes"])
+        CU20(["CU-20 Gestionar categorías propias"])
+        CU13(["CU-13 Seleccionar la categoría"])
+        CU14(["CU-14 Asociar la tarjeta"])
+        CU15(["CU-15 Recalcular el balance"])
+        CU16(["CU-16 Confirmar la eliminación"])
+        CU36(["CU-36 Mostrar alerta de sobregiro"])
+    end
+
+    U --- CU09 & CU10 & CU11 & CU12 & CU17 & CU18 & CU20
+    CRON --- CU19
+    CU09 & CU10 & CU17 -.->|«include»| CU13
+    CU14 -.->|«extend»<br/>si el método de pago es tarjeta| CU09 & CU10
+    CU09 & CU10 & CU11 & CU12 & CU19 -.->|«include»| CU15
+    CU12 -.->|«include»| CU16
+    CU36 -.->|«extend»<br/>si llega al umbral o al 100 %| CU10
+```
+
+### Historial y búsqueda (RF8)
+
+```mermaid
+flowchart LR
+    U["👤 Usuario"]
+
+    subgraph SYS["Mincome · Historial y búsqueda (RF8)"]
+        CU21(["CU-21 Consultar el historial"])
+        CU23(["CU-23 Buscar por texto<br/>concepto, notas y alias comercial"])
+        CU24(["CU-24 Aplicar la búsqueda avanzada"])
+        CU31(["CU-31 Limpiar los filtros"])
+        CU22(["CU-22 Paginar los resultados<br/>20 por vista"])
+        CU25(["CU-25 Filtrar por rango de fechas"])
+        CU26(["CU-26 Filtrar por tipo de flujo"])
+        CU27(["CU-27 Filtrar por categoría"])
+        CU28(["CU-28 Filtrar por intervalo de montos"])
+        CU29(["CU-29 Filtrar por método de pago o tarjeta"])
+        CU30(["CU-30 Filtrar por estado presupuestal"])
+    end
+
+    U --- CU21 & CU23 & CU24 & CU31
+    CU21 & CU23 & CU24 -.->|«include»| CU22
+    CU25 & CU26 & CU27 & CU28 & CU29 & CU30 -.->|«extend»| CU24
+```
+
+### Presupuestos (RF9)
+
+```mermaid
+flowchart LR
+    U["👤 Usuario"]
+
+    subgraph SYS["Mincome · Presupuestos (RF9)"]
+        CU32(["CU-32 Definir un presupuesto por categoría"])
+        CU33(["CU-33 Editar el límite o el umbral de alerta"])
+        CU34(["CU-34 Desactivar un presupuesto"])
+        CU35(["CU-35 Consultar el avance del presupuesto"])
+        CU10(["CU-10 Registrar un gasto"])
+        CU36(["CU-36 Mostrar alerta de sobregiro<br/>umbral preventivo o 100 % del límite"])
+    end
+
+    U --- CU32 & CU33 & CU34 & CU35 & CU10
+    CU36 -.->|«extend»<br/>si el gasto supera el umbral| CU10
+```
+
+### Apartados (RF4)
+
+```mermaid
+flowchart LR
+    U["👤 Usuario"]
+
+    subgraph SYS["Mincome · Apartados (RF4)"]
+        CU37(["CU-37 Crear un apartado"])
+        CU38(["CU-38 Abonar a un apartado"])
+        CU39(["CU-39 Retirar de un apartado"])
+        CU41(["CU-41 Editar un apartado"])
+        CU42(["CU-42 Eliminar un apartado"])
+        CU43(["CU-43 Consultar el avance de la meta"])
+        CU44(["CU-44 Consultar los abonos y retiros"])
+        CU40(["CU-40 Validar el saldo disponible"])
+        CU16(["CU-16 Confirmar la eliminación"])
+    end
+
+    U --- CU37 & CU38 & CU39 & CU41 & CU42 & CU43 & CU44
+    CU38 & CU39 -.->|«include»| CU40
+    CU42 -.->|«include»| CU16
+```
+
+### Tarjetas (RF6)
+
+```mermaid
+flowchart LR
+    U["👤 Usuario"]
+
+    subgraph SYS["Mincome · Tarjetas (RF6)"]
+        CU45(["CU-45 Registrar una tarjeta<br/>alias, tipo, día de corte y día límite"])
+        CU47(["CU-47 Editar una tarjeta"])
+        CU48(["CU-48 Desactivar o eliminar una tarjeta"])
+        CU49(["CU-49 Consultar los días restantes para el pago"])
+        CU50(["CU-50 Consultar qué tarjeta conviene usar"])
+        CU46(["CU-46 Rechazar datos sensibles<br/>número completo, CVV o NIP"])
+        CU16(["CU-16 Confirmar la eliminación"])
+    end
+
+    U --- CU45 & CU47 & CU48 & CU49 & CU50
+    CU45 & CU47 -.->|«include»| CU46
+    CU48 -.->|«include»| CU16
+```
+
+### Calendario y simulador (RF5)
+
+```mermaid
+flowchart LR
+    U["👤 Usuario"]
+
+    subgraph SYS["Mincome · Calendario y simulador (RF5)"]
+        CU51(["CU-51 Consultar el calendario de movimientos"])
+        CU52(["CU-52 Crear un escenario de simulación"])
+        CU53(["CU-53 Agregar una partida hipotética<br/>ingreso, gasto o ahorro"])
+        CU55(["CU-55 Consultar los escenarios guardados"])
+        CU56(["CU-56 Eliminar un escenario"])
+        CU54(["CU-54 Calcular el saldo proyectado<br/>sin alterar el balance real"])
+        CU16(["CU-16 Confirmar la eliminación"])
+    end
+
+    U --- CU51 & CU52 & CU53 & CU55 & CU56
+    CU52 & CU53 -.->|«include»| CU54
+    CU56 -.->|«include»| CU16
+```
+
+### Asistente inteligente (RF7, RNF2)
+
+Solo el usuario premium usa el asistente. Al usuario gratuito, la app no le muestra el chat.
+
+```mermaid
+flowchart LR
+    P["⭐ Usuario premium"]
+    AI["✨ OpenAI"]
+
+    subgraph SYS["Mincome · Asistente inteligente (RF7 · RNF2)"]
+        CU57(["CU-57 Enviar un mensaje al asistente"])
+        CU65(["CU-65 Iniciar una conversación nueva"])
+        CU66(["CU-66 Consultar las conversaciones anteriores"])
+        CU58(["CU-58 Verificar el plan y la cuota disponible"])
+        CU59(["CU-59 Identificar la acción y sus parámetros"])
+        CU60(["CU-60 Ejecutar la acción por MCP"])
+        CU61(["CU-61 Redactar la respuesta con el JSON"])
+        CU62(["CU-62 Registrar el consumo de tokens"])
+        CU63(["CU-63 Responder con un mensaje fijo"])
+        CU64(["CU-64 Avisar que la cuota se agotó"])
+    end
+
+    P --- CU57 & CU65 & CU66
+    CU57 -.->|«include»| CU58 & CU59 & CU60 & CU61 & CU62
+    CU63 -.->|«extend»<br/>si ninguna acción aplica| CU57
+    CU64 -.->|«extend»<br/>si no queda cuota| CU57
+    CU59 & CU61 --- AI
+```
+
+### Dashboard (RF10)
+
+```mermaid
+flowchart LR
+    U["👤 Usuario"]
+
+    subgraph SYS["Mincome · Dashboard (RF10)"]
+        CU67(["CU-67 Consultar el dashboard"])
+        CU68(["CU-68 Ver el saldo total, el libre y el apartado"])
+        CU69(["CU-69 Ver las gráficas de ingresos contra gastos"])
+        CU70(["CU-70 Cambiar el periodo del resumen"])
+    end
+
+    U --- CU67
+    CU67 -.->|«include»| CU68 & CU69
+    CU70 -.->|«extend»<br/>si elige otro periodo| CU67
+```
+
+### Planes y catálogos (RNF2)
+
+En el MVP no hay pagos: el equipo asigna el plan con un script que actualiza la base de datos y el grupo `premium` de Cognito en el mismo paso, para que nunca queden distintos. El usuario ve el cambio la próxima vez que se renueve su sesión, porque es cuando su JWT trae el grupo nuevo.
+
+```mermaid
+flowchart LR
+    ADM["🛠️ Administrador (equipo)"]
+    COG["🔑 Amazon Cognito"]
+
+    subgraph SYS["Mincome · Planes y catálogos (RNF2)"]
+        CU71(["CU-71 Asignar el plan a un usuario<br/>gratuito o premium"])
+        CU72(["CU-72 Actualizar el plan en la base de datos"])
+        CU73(["CU-73 Agregar o quitar del grupo premium"])
+        CU74(["CU-74 Configurar los límites de cada plan"])
+        CU75(["CU-75 Cargar las categorías del sistema"])
+    end
+
+    ADM --- CU71 & CU74 & CU75
+    CU71 -.->|«include»| CU72 & CU73
+    CU73 --- COG
+```
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
 
@@ -284,7 +578,7 @@ Para cumplir con el plazo, el MVP prioriza exclusivamente las funciones principa
 | R3 | Los usuarios no registran sus movimientos financieros de forma constante. | Información incompleta o incorrecta en los cálculos y reportes. | Diseñar una experiencia de captura rápida, recordatorios y notificaciones; hacer la experiencia fluida y rápida, agregando automatizaciones donde sea posible. |
 | R4 | Las simulaciones financieras utilizan datos incompletos o erróneos. | Resultados poco precisos, proyecciones incorrectas y pérdida de credibilidad. | Validar datos de entrada en formularios, advertir sobre campos vacíos y mostrar una leyenda indicando que las proyecciones son estimaciones basadas en la información proporcionada por el usuario, ya que este puede hacer simulaciones o estimaciones a su propio interés. |
 | R5 | El chatbot proporciona consejos o respuestas sobre temas no financieros ajenos al propósito de la plataforma. | El usuario puede tomar malas decisiones financieras y utilizar la aplicación para otros fines no previstos. | Limitar las recomendaciones a la información disponible y mostrar descargos de responsabilidad, con la leyenda "El CHATBOT es una IA y puede cometer errores." |
-| R6 | Aumento inesperado en el consumo de recursos en la nube y llamadas a APIs de IA. | Sobrecostos operativos que superen el presupuesto del proyecto. | Control de consumo por niveles de cuenta: prueba gratuita con límite base de consultas y cuentas premium con asignación mensual ampliada de tokens, aplicando en ambos casos un tope de seguridad para evitar sobrecostos en las APIs del modelo de lenguaje. |
+| R6 | Aumento inesperado en el consumo de recursos en la nube y llamadas a APIs de IA. | Sobrecostos operativos que superen el presupuesto del proyecto. | Control de consumo por plan: el asistente es exclusivo de las cuentas premium, con una asignación mensual de consultas y tokens y un tope de seguridad para evitar sobrecostos en las APIs del modelo de lenguaje. |
 | R7 | Fugas o exposición de información financiera y personal de los usuarios. | Daño irreparable a la reputación, pérdida de confianza y problemas legales. | Cifrado de datos, control de acceso, autenticación segura y buenas prácticas de seguridad. Limitar la información que se pueda enviar al chatbot, asesoramiento y acuerdos de confidencialidad, términos y condiciones. |
 | R8 | Dificultades puntuales para integrar modelos de IA, MCP o LangChain con el backend o la app. | Leves demoras o ajustes menores en la respuesta del asistente durante la fase de desarrollo. | Aprovechar la experiencia previa y conocimiento de los desarrolladores para asesorarse, realizar pruebas de concepto tempranas y mantener una arquitectura modular. |
 | R9 | Dependencia de terceros (OpenAI): cambio de APIs o caída del servicio. | Interrupción del servicio y necesidad de reescribir partes del código. | Se transfiere la infraestructura y el mantenimiento del modelo al proveedor externo. |
@@ -371,7 +665,7 @@ Las reglas de ramas, commits y pull requests están en la [guía de contribució
 | ID | Descripción | Criterio de terminado (DoD) |
 |:-:|---|---|
 | TSK-01 | Inicialización del repositorio Git, estructuración modular del backend en NestJS con TypeScript y configuración del pool de conexiones hacia PostgreSQL. | Repositorio remoto con linter y tipado estricto activo, variables de entorno protegidas y script de migración inicial ejecutado con éxito. |
-| TSK-02 | Creación de endpoints para registro y login de usuarios, hashing seguro de contraseñas y emisión de tokens de autenticación JWT. | Endpoints `/auth/register` y `/auth/login` funcionales; almacenamiento de contraseñas cifradas en BD y exclusión de acceso sin credenciales válidas. |
+| TSK-02 | Integración del backend con Amazon Cognito: validación del JWT en API Gateway, creación del perfil en `usuarios` ligado a su `cognito_sub` y protección de todos los endpoints. | Registro e inicio de sesión funcionales con Cognito; toda petición sin un JWT válido se rechaza; el perfil del usuario se crea con su `cognito_sub` y la base de datos no guarda contraseñas. |
 | TSK-03 | Maquetación e interactividad en Vite/TypeScript para las pantallas de Login y Registro. | Formularios con validación en cliente (correo, longitud de contraseña), retroalimentación de error legible y redirección al Dashboard al autenticarse. |
 | TSK-04 | Diseño del esquema de base de datos para ingresos y gastos; endpoints CRUD con fechas históricas y categorías. | Tablas relacionales creadas; endpoints capaces de crear, listar, editar y eliminar movimientos, recalculando el balance de forma dinámica. |
 | TSK-05 | Entidad de apartados y algoritmo de cálculo que aísla visualmente el saldo disponible sin modificar el patrimonio total. | Endpoints de apartados validados; pruebas de consistencia contable que comprueban que el saldo libre se reduce sin eliminar registros de capital. |
@@ -526,13 +820,15 @@ flowchart LR
 ### ☁️ Infraestructura en AWS
 
 <div align="center">
-<img src="docs/arquitectura-aws.svg" alt="Diagrama de la arquitectura de Mincome en AWS: clientes web y móvil, CloudFront y S3, Cognito, API Gateway, Lambdas, RDS Proxy, RDS PostgreSQL y OpenAI" width="100%"/>
+<img src="docs/arquitectura-aws.svg" alt="Diagrama de la arquitectura de Mincome en AWS: clientes web y móvil, CloudFront y S3, Cognito, API Gateway, Lambdas, EventBridge, RDS Proxy, RDS PostgreSQL y OpenAI" width="100%"/>
 </div>
 
 - **Web:** CloudFront sirve el build de React desde un bucket de S3 privado, al que solo CloudFront puede leer (OAC). La app móvil lleva su build dentro del paquete de Capacitor, así que no pasa por CloudFront.
 - **Autenticación:** web y móvil inician sesión con Cognito y mandan el JWT en cada petición. API Gateway lo valida antes de invocar cualquier Lambda.
+- **Plan premium:** los usuarios premium pertenecen al grupo `premium` de Cognito, así que su JWT ya trae el rol y la app muestra el asistente solo a ellos. La Lambda de IA vuelve a confirmar el plan y la cuota en la base de datos antes de llamar a OpenAI, porque `usuarios.plan_id` es la fuente de verdad.
 - **Backend:** NestJS corre en una Lambda dentro de la VPC y se conecta a RDS PostgreSQL a través de RDS Proxy, que reutiliza las conexiones entre invocaciones para no agotar el pool.
 - **IA:** el chat es un endpoint (`POST /chat`) que llega a la Lambda de `mincome-ai-wrapper`. La IA solo conoce las herramientas del servidor MCP y hace dos llamadas a OpenAI. En la primera identifica la acción y sus parámetros, y la ejecuta por MCP contra la API con el JWT del usuario, nunca directo en la base de datos (RNF2). En la segunda redacta la respuesta usando solo el JSON que regresó el endpoint. Si el mensaje no corresponde a ninguna acción, responde un mensaje fijo y no hace la segunda llamada. La Lambda está fuera de la VPC para llamar a OpenAI sin NAT Gateway.
+- **Tareas programadas:** EventBridge Scheduler invoca una vez al día la Lambda del backend, que genera los movimientos de las plantillas de `transacciones_recurrentes` que vencen ese día.
 - **Soporte:** las llaves viven en Secrets Manager, los logs y alarmas en CloudWatch, y todo se despliega con AWS SAM desde GitHub Actions usando OIDC, sin llaves de AWS en el repositorio.
 
 ### 🧰 Tecnologías elegidas
@@ -567,8 +863,8 @@ flowchart LR
 | 🏭 Creacional | **Singleton** | Instanciar múltiples conexiones o clientes cognitivos por petición saturaría la memoria del servidor y agotaría el pool de conexiones (R6, R13). | La conexión al pool de PostgreSQL y las instancias de LangChain se gestionan como instancia única mediante la inyección de dependencias nativa de NestJS. |
 | 🏭 Creacional | **Factory Method** | Distintos tipos de movimientos (ingresos fijos, ingresos variables, gastos generales, recurrentes y traspasos a apartados) comparten atributos base pero tienen reglas de validación y cálculos temporales diferentes. | Fábrica en la capa de servicios del backend que encapsula la instanciación de cada tipo de transacción sin acoplar los controladores a clases concretas. |
 | 🧱 Estructural | **Repository** | Aislar la lógica matemática contable de la capa de persistencia, de modo que optimizar consultas o migrar la base de datos no afecte el cálculo de saldos y presupuestos. | Intermediario entre los controladores de NestJS y las tablas de PostgreSQL que centraliza lectura, escritura y paginación de historiales para web y móvil. |
-| 🧱 Estructural | **Facade** | El flujo del chatbot (captura del mensaje, estructuración del prompt en LangChain, validación de permisos de contexto y comunicación mediante MCP) ensuciaría los controladores. | Servicio `ChatbotFacade` con una interfaz simple, `procesarConsulta()`, que oculta toda la orquestación del servidor MCP y los modelos de lenguaje. |
-| 🧱 Estructural | **Adapter** | Web y móvil persisten sesiones con mecanismos distintos (Cookies/LocalStorage vs. SecureStore/AsyncStorage). | Capa adaptadora de almacenamiento de sesión y consumo de API en el cliente que unifica la interfaz de llamada y permite compartir la lógica de pantallas. |
+| 🧱 Estructural | **Facade** | El flujo del chatbot (captura del mensaje, estructuración del prompt en LangChain, validación de permisos de contexto y comunicación mediante MCP) ensuciaría los controladores. | Servicio `ChatbotFacade` con una interfaz simple, `processQuery()`, que oculta toda la orquestación del servidor MCP y los modelos de lenguaje. |
+| 🧱 Estructural | **Adapter** | Web y móvil persisten sesiones con mecanismos distintos (LocalStorage en el navegador vs. almacenamiento seguro del dispositivo con Capacitor). | Capa adaptadora de almacenamiento de sesión y consumo de API en el cliente que unifica la interfaz de llamada y permite compartir la lógica de pantallas. |
 | 🔁 Comportamiento | **Observer** | Al registrar un gasto, ingreso o apartado, el balance total, la gráfica de resumen, el presupuesto de la categoría y el calendario deben enterarse de inmediato sin recargar la pantalla. | Gestión del estado global en los clientes: al confirmarse una transacción, los componentes suscritos se actualizan automáticamente en tiempo real. |
 | 🔁 Comportamiento | **Strategy** | El asistente y el simulador ejecutan algoritmos distintos (proyectar balance, analizar sobregiros, recomendar uso de tarjetas); resolverlo con `if`/`switch` extensos generaría código frágil. | Interfaz de estrategia común que selecciona dinámicamente el algoritmo y las herramientas de contexto según la consulta en lenguaje natural. |
 
@@ -623,7 +919,7 @@ Campo de texto libre en la cabecera del módulo de historial transaccional. Cons
 | 🏷️ **Categorización contable** | Selector múltiple: Alimentación, Transporte, Vivienda, Servicios, Salud, Entretenimiento, Educación y Ahorro. |
 | 💲 **Intervalo de importes** | Monto mínimo y monto máximo configurables. |
 | 💳 **Método de pago y cuentas** | Alias de tarjetas de crédito o débito registradas, transferencias y pagos en efectivo (sin información bancaria confidencial). |
-| 🚦 **Estado presupuestal** | Filtro booleano para aislar los gastos que activaron alertas por superar el 80 % o el 100 % del límite mensual de su categoría. |
+| 🚦 **Estado presupuestal** | Filtro booleano para aislar los gastos que activaron alertas por llegar al umbral preventivo (80 % por defecto) o al 100 % del límite mensual de su categoría. |
 
 ### Comportamiento y paginación en servidor
 
@@ -713,7 +1009,193 @@ Fuente **sans-serif** de libre distribución (**Inter** o la familia del sistema
 
 ### Modelo entidad-relación
 
-![Modelo entidad-relación de la base de datos](./docs/drawSQL-image-export-2026-10-27.webp)
+Las 14 entidades del sistema con sus atributos, llaves y relaciones. Cada relación se lee de izquierda a derecha con su verbo, por ejemplo: *un usuario registra cero o muchas transacciones*.
+
+| Símbolo | Cardinalidad |
+|:-:|---|
+| `\|\|` | Exactamente uno |
+| `o\|` | Cero o uno |
+| `o{` | Cero o muchos |
+
+```mermaid
+erDiagram
+    planes ||--o{ usuarios : "aplica a"
+    usuarios |o--o{ categorias : "personaliza"
+    usuarios ||--o{ tarjetas : "registra"
+    usuarios ||--o{ transacciones : "registra"
+    usuarios ||--o{ transacciones_recurrentes : "programa"
+    usuarios ||--o{ presupuestos : "define"
+    usuarios ||--o{ apartados : "crea"
+    usuarios ||--o{ movimientos_apartado : "realiza"
+    usuarios ||--o{ escenarios_simulacion : "simula"
+    usuarios ||--o{ conversaciones_chat : "inicia"
+    usuarios ||--o{ cuotas_ia : "consume"
+    categorias ||--o{ transacciones : "clasifica"
+    categorias ||--o{ transacciones_recurrentes : "clasifica"
+    categorias ||--o{ presupuestos : "se limita con"
+    tarjetas |o--o{ transacciones : "paga"
+    tarjetas |o--o{ transacciones_recurrentes : "paga"
+    transacciones_recurrentes |o--o{ transacciones : "genera"
+    apartados ||--o{ movimientos_apartado : "registra"
+    escenarios_simulacion ||--o{ simulacion_movimientos : "contiene"
+    conversaciones_chat ||--o{ mensajes_chat : "contiene"
+
+    planes {
+        smallint id PK
+        varchar nombre UK "gratuito o premium"
+        int limite_consultas_mes
+        int limite_tokens_mes
+        numeric precio_mensual
+        boolean incluye_asistente "solo premium"
+        boolean activo
+    }
+    usuarios {
+        uuid id PK
+        smallint plan_id FK
+        varchar nombre
+        varchar correo UK
+        varchar cognito_sub UK
+        numeric saldo_inicial
+        char moneda "MXN por defecto"
+        boolean activo
+        timestamptz ultimo_acceso "opcional"
+        timestamptz creado_en
+        timestamptz actualizado_en
+    }
+    categorias {
+        int id PK
+        uuid usuario_id FK "nulo en las del sistema"
+        varchar nombre
+        varchar icono
+        varchar tipo_aplicable "ingreso, gasto o ambos"
+        boolean es_sistema
+    }
+    tarjetas {
+        uuid id PK
+        uuid usuario_id FK
+        varchar alias UK "único por usuario"
+        tipo_tarjeta tipo_tarjeta "crédito o débito"
+        smallint dia_corte "1 a 31"
+        smallint dia_limite_pago "1 a 31"
+        char color_hex
+        boolean activa
+        timestamptz creado_en
+    }
+    transacciones_recurrentes {
+        uuid id PK
+        uuid usuario_id FK
+        int categoria_id FK
+        uuid tarjeta_id FK "opcional"
+        tipo_flujo tipo_flujo "ingreso o gasto"
+        subtipo_flujo subtipo
+        numeric monto
+        varchar concepto
+        metodo_pago metodo_pago
+        frecuencia frecuencia
+        smallint dia_ejecucion
+        date fecha_inicio
+        date fecha_fin "opcional"
+        boolean activa
+        timestamptz creado_en
+    }
+    transacciones {
+        uuid id PK
+        uuid usuario_id FK
+        int categoria_id FK
+        uuid tarjeta_id FK "obligatoria si se pagó con tarjeta"
+        uuid recurrente_id FK "opcional"
+        tipo_flujo tipo_flujo "ingreso o gasto"
+        subtipo_flujo subtipo
+        numeric monto
+        date fecha
+        varchar concepto
+        varchar alias_comercial
+        text notas
+        metodo_pago metodo_pago
+        nivel_alerta nivel_alerta "ninguna, preventiva o excedida"
+        timestamptz creado_en
+        timestamptz actualizado_en
+    }
+    presupuestos {
+        uuid id PK
+        uuid usuario_id FK
+        int categoria_id FK "uno por categoría y usuario"
+        numeric monto_limite
+        smallint umbral_alerta "80 por defecto"
+        boolean activo
+        timestamptz creado_en
+        timestamptz actualizado_en
+    }
+    apartados {
+        uuid id PK
+        uuid usuario_id FK
+        varchar nombre UK "único por usuario"
+        numeric saldo
+        numeric meta_monto "opcional"
+        date fecha_meta "opcional"
+        char color_hex
+        varchar icono
+        boolean activo
+        timestamptz creado_en
+    }
+    movimientos_apartado {
+        uuid id PK
+        uuid apartado_id FK
+        uuid usuario_id FK
+        tipo_mov_apartado tipo "abono o retiro"
+        numeric monto
+        date fecha
+        varchar nota
+        timestamptz creado_en
+    }
+    escenarios_simulacion {
+        uuid id PK
+        uuid usuario_id FK
+        varchar nombre
+        date fecha_inicio
+        date fecha_fin
+        numeric saldo_base
+        numeric saldo_proyectado
+        timestamptz creado_en
+    }
+    simulacion_movimientos {
+        bigint id PK
+        uuid escenario_id FK
+        date fecha
+        tipo_simulacion tipo "ingreso, gasto o ahorro"
+        numeric monto
+        varchar descripcion
+    }
+    conversaciones_chat {
+        uuid id PK
+        uuid usuario_id FK
+        varchar titulo
+        timestamptz creado_en
+        timestamptz actualizado_en
+    }
+    mensajes_chat {
+        bigint id PK
+        uuid conversacion_id FK
+        rol_mensaje rol "usuario, asistente o sistema"
+        text contenido
+        varchar estrategia_usada
+        int tokens_entrada
+        int tokens_salida
+        timestamptz creado_en
+    }
+    cuotas_ia {
+        uuid id PK
+        uuid usuario_id FK "una fila por usuario y mes"
+        date periodo "primer día del mes"
+        int consultas_usadas
+        int tokens_usados
+        timestamptz actualizado_en
+    }
+```
+
+### Modelo físico (drawSQL)
+
+![Modelo físico de la base de datos en drawSQL](./docs/drawSQL-image-export-2026-10-27.webp)
 
 *Plataforma multiplataforma de finanzas personales · Base de datos relacional PostgreSQL · Cuatrimestre septiembre – diciembre 2026*
 
@@ -733,6 +1215,7 @@ Abreviaturas: **PK** llave primaria · **FK** llave foránea · **NN** no nulo �
 | `tipo_mov_apartado` | `abono`, `retiro` | Dirección del traspaso |
 | `tipo_simulacion` | `ingreso`, `gasto`, `ahorro` | Partida hipotética |
 | `rol_mensaje` | `usuario`, `asistente`, `sistema` | Emisor del mensaje |
+| `nivel_alerta` | `ninguna`, `preventiva`, `excedida` | Alerta presupuestal que disparó un gasto |
 
 ### Diccionario de datos
 
@@ -747,6 +1230,7 @@ Catálogo de niveles de servicio y límites del asistente inteligente (RNF2).
 | `limite_consultas_mes` | INT | NN, CK >= 0 | Consultas máximas por mes |
 | `limite_tokens_mes` | INT | NN, CK >= 0 | Tokens máximos por mes |
 | `precio_mensual` | NUMERIC(8,2) | NN, DF 0, CK >= 0 | Costo mensual |
+| `incluye_asistente` | BOOLEAN | NN, DF false | Da acceso al asistente: `false` en `gratuito`, `true` en `premium` |
 | `activo` | BOOLEAN | NN, DF true | Plan disponible |
 
 #### `usuarios`
@@ -756,7 +1240,7 @@ Perfil y datos de negocio de las cuentas registradas (RF1). Cognito gestiona cre
 | Campo | Tipo | Restricciones | Descripción |
 | --- | --- | --- | --- |
 | `id` | UUID | PK | Identificador |
-| `plan_id` | SMALLINT | NN, FK → `planes.id` | Plan vigente |
+| `plan_id` | SMALLINT | NN, FK → `planes.id` | Plan vigente; se sincroniza con el grupo `premium` de Cognito |
 | `nombre` | VARCHAR(100) | NN | Nombre para mostrar |
 | `correo` | VARCHAR(254) | NN, UQ sobre `lower(correo)`, CK formato | Correo único |
 | `cognito_sub` | VARCHAR(64) | NN, UQ | Identificador en Cognito |
@@ -839,7 +1323,7 @@ Entidad central de ingresos y gastos reales (RF2, RF3, RF8).
 | `metodo_pago` | metodo_pago | NN | Medio de pago |
 | `tarjeta_id` | UUID | NULL, FK → `tarjetas.id` | Obligatoria con tarjeta |
 | `recurrente_id` | UUID | NULL, FK → `transacciones_recurrentes.id` | Plantilla de origen |
-| `nivel_alerta` | SMALLINT | NN, DF 0, CK IN (0,80,100) | Alerta presupuestal |
+| `nivel_alerta` | nivel_alerta | NN, DF 'ninguna' | Alerta que disparó: `preventiva` al llegar al `umbral_alerta` del presupuesto, `excedida` al llegar al 100 % |
 | `creado_en` | TIMESTAMPTZ | NN, DF now() | Fecha de captura |
 | `actualizado_en` | TIMESTAMPTZ | NN, DF now() | Última edición |
 
