@@ -43,7 +43,7 @@ Gateway principal del proyecto **Mincome**. Este repositorio centraliza los enla
 |:--|:--|:--|
 | `01` [Problemática](#-problemática) | `05` [Requisitos funcionales y no funcionales](#-requisitos-funcionales-y-no-funcionales) | `12` [Arquitectura y tecnologías](#-arquitectura-y-tecnologías) |
 | `02` [Justificación](#-justificación) | `06` [Casos de uso](#-casos-de-uso) | `13` [Patrones de diseño](#-patrones-de-diseño) |
-| `03` [Objetivos](#-objetivos) | `07` [Análisis de riesgos](#-análisis-de-riesgos) | `14` [Wireframes y flujo de navegación](#-wireframes-y-flujo-de-navegación) |
+| `03` [Objetivos](#-objetivos) | `07` [Análisis de riesgos](#-análisis-de-riesgos) | `14` [Wireframes, prototipado y flujo de navegación](#-wireframes-prototipado-y-flujo-de-navegación) |
 | `04` [Alcance, MVP y limitaciones](#-alcance-mvp-y-limitaciones) | `08` [Metodología y equipo](#-metodología-y-equipo) | `15` [Búsquedas en el sitio](#-búsquedas-en-el-sitio) |
 | | `09` [Control de versiones con GitHub](#-control-de-versiones-con-github) | `16` [Validación de la información](#-validación-de-la-información) |
 | | `10` [Separación en tareas](#-separación-en-tareas) | `17` [Definición de contenido](#-definición-de-contenido) |
@@ -870,7 +870,14 @@ flowchart LR
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
 
-## 📐 Wireframes y flujo de navegación
+## 📐 Wireframes, prototipado y flujo de navegación
+
+El diseño de pantallas, prototipos interactivos y flujos de usuario se encuentran centralizados en Figma:
+
+- 🔗 **[Prototipo interactivo y diseño UI/UX en Figma](https://www.figma.com/design/PYKgj14XT0QKPQxsNBXi2a/Mincome?node-id=0-1&t=XkyntfK69KLvCLxp-1)**
+
+> [!TIP]
+> Para interactuar con el prototipo y explorar el lienzo, asegúrate de que el enlace cuente con permisos de visualización pública ("Anyone with the link can view").
 
 La plataforma web centraliza su operación en el **Dashboard (RF10)**, accesible tras validar credenciales en **Acceso y Registro (RF1)**. Un menú lateral fijo (*sidebar*) permite acceder directamente a los módulos secundarios y regresar sin recargar datos ni perder la sesión.
 
