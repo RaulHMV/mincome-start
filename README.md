@@ -45,7 +45,7 @@ Gateway principal del proyecto **Mincome**. Este repositorio centraliza los enla
 | `02` [Justificación](#-justificación) | `06` [Casos de uso](#-casos-de-uso) | `13` [Patrones de diseño](#-patrones-de-diseño) |
 | `03` [Objetivos](#-objetivos) | `07` [Análisis de riesgos](#-análisis-de-riesgos) | `14` [Wireframes, prototipado y flujo de navegación](#-wireframes-prototipado-y-flujo-de-navegación) |
 | `04` [Alcance, MVP y limitaciones](#-alcance-mvp-y-limitaciones) | `08` [Metodología y equipo](#-metodología-y-equipo) | `15` [Búsquedas en el sitio](#-búsquedas-en-el-sitio) |
-| | `09` [Control de versiones con Git y GitHub](#control-de-versiones-con-git-y-github) | `16` [Validación de la información](#validación-de-la-información) |
+| | `09` [Control de versiones con Git y GitHub](#-control-de-versiones-con-git-y-github) | `16` [Validación de la información](#-validación-de-la-información) |
 | | `10` [Separación en tareas](#-separación-en-tareas) | `17` [Definición de contenido](#-definición-de-contenido) |
 | | `11` [Cronograma](#-cronograma) | `18` [Modelo entidad-relación y diccionario de datos](#-modelo-entidad-relación-y-diccionario-de-datos) |
 
