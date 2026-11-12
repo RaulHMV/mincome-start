@@ -45,7 +45,7 @@ Gateway principal del proyecto **Mincome**. Este repositorio centraliza los enla
 | `02` [Justificación](#-justificación) | `06` [Casos de uso](#-casos-de-uso) | `13` [Patrones de diseño](#-patrones-de-diseño) |
 | `03` [Objetivos](#-objetivos) | `07` [Análisis de riesgos](#-análisis-de-riesgos) | `14` [Wireframes, prototipado y flujo de navegación](#-wireframes-prototipado-y-flujo-de-navegación) |
 | `04` [Alcance, MVP y limitaciones](#-alcance-mvp-y-limitaciones) | `08` [Metodología y equipo](#-metodología-y-equipo) | `15` [Búsquedas en el sitio](#-búsquedas-en-el-sitio) |
-| | `09` [Control de versiones con GitHub](#-control-de-versiones-con-github) | `16` [Validación de la información](#-validación-de-la-información) |
+| | `09` [Control de versiones con Git y GitHub](#control-de-versiones-con-git-y-github) | `16` [Validación de la información](#validación-de-la-información) |
 | | `10` [Separación en tareas](#-separación-en-tareas) | `17` [Definición de contenido](#-definición-de-contenido) |
 | | `11` [Cronograma](#-cronograma) | `18` [Modelo entidad-relación y diccionario de datos](#-modelo-entidad-relación-y-diccionario-de-datos) |
 
@@ -619,17 +619,19 @@ Se eligió la **metodología ágil (framework Scrum)** por las características 
 
 <div align="right"><a href="#-índice">⬆️ Volver al índice</a></div>
 
-## 🐙 Control de versiones con GitHub
+## 🐙 Control de versiones con Git y GitHub
 
-Usamos **GitHub** para alojar los repositorios del proyecto, revisar el código y desplegar.
+Usamos **Git** como sistema de control de versiones distribuido para gestionar el historial local y **GitHub** para alojar los repositorios del proyecto, revisar el código y desplegar.
 
 | Motivo | Justificación |
-|---|---|
+| :--- | :--- |
+| 🌳 **Historial distribuido con Git** | Permite que cada integrante trabaje en ramas aisladas de forma local, mantenga un registro atómico de cada cambio y pueda revertir errores sin afectar el avance del equipo. |
 | 🎓 **GitHub Student Developer Pack** | Como estudiantes tenemos GitHub Pro y GitHub Copilot sin costo, así que la plataforma no le suma gastos al proyecto. |
 | 🤝 **Es lo que el equipo ya conoce** | Todos lo hemos usado antes, así que no perdemos tiempo del cuatrimestre aprendiendo otra plataforma y empezamos a trabajar desde el primer sprint. |
 | 🔀 **Todo el flujo en un solo lugar** | Repositorios, pull requests con revisión obligatoria y ramas protegidas para `main` y `develop`. |
 | 🚀 **CI/CD con GitHub Actions** | Corre lint, pruebas y despliegue a AWS en cada PR, conectándose por OIDC, sin llaves de AWS en el repositorio. |
 | 🎫 **Integración con Jira** | Con la app GitHub for Jira, cada rama, commit y PR aparece en su ticket del tablero. |
+| 🛡️ **Control de accesos y `.gitignore`** | Solo los integrantes tienen permisos de escritura; las reglas de `.gitignore` excluyen `node_modules/`, `dist/` y `.env*`, documentando las variables mediante `.env.example`. |
 
 Las reglas de ramas, commits y pull requests están en la [guía de contribución](CONTRIBUTING.md).
 
